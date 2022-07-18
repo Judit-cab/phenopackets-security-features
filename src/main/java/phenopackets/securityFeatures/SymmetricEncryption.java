@@ -2,6 +2,7 @@ package phenopackets.securityFeatures;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -46,12 +47,56 @@ public class SymmetricEncryption {
     /*
      * Function to encrypt String fields
      */
-    public static String encrypt(String input, SecretKey key, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException,
+    public static String encryptStrings(String input, SecretKey key, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException,
     InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         Cipher cipher = Cipher.getInstance(ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, key, iv);
         byte[] cipherText = cipher.doFinal(input.getBytes());
         return Base64.getEncoder().encodeToString(cipherText);
+    }
+
+    /*
+    * Function to convert integer to byte 
+    */
+    public static byte[] intToBytes(final int data) {
+        return new byte[] {
+            (byte)((data >> 24) & 0xff),
+            (byte)((data >> 16) & 0xff),
+            (byte)((data >> 8) & 0xff),
+            (byte)((data >> 0) & 0xff),
+        };
+    }
+
+    /*
+     * Function to encrypt Integers
+     */
+
+    public static int encryptInt(int input, SecretKey key, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException,
+    InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.ENCRYPT_MODE, key, iv);
+
+
+        byte[] cipherText = cipher.doFinal(intToBytes(input));
+
+        int value = new BigInteger(cipherText).intValue();
+        return value;
+    }
+
+
+
+    /*
+    * Function to encrypt
+    */
+
+    public static byte[] encryptAES(byte[] input, SecretKey key, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException,
+    InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.ENCRYPT_MODE, key, iv);
+
+        byte[] cipherText = cipher.doFinal(input);
+      
+        return cipherText;
     }
 
     /*
@@ -65,6 +110,20 @@ public class SymmetricEncryption {
         byte[] plainText = cipher.doFinal(Base64.getDecoder().decode(cipherText));
         
         return new String(plainText);
+    }
+
+    /*
+    * Function to decrypt
+    */
+
+    public static byte[] decryptAES(byte[] input, SecretKey key, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException,
+    InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.DECRYPT_MODE, key, iv);
+
+        byte[] plainText = cipher.doFinal(input);
+      
+        return plainText;
     }
 
     public static SealedObject encryptObject(Serializable object, SecretKey key, IvParameterSpec iv) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, 
