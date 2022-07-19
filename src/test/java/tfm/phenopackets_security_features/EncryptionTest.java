@@ -1,12 +1,9 @@
 package tfm.phenopackets_security_features;
 
-import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 import javax.crypto.BadPaddingException;
@@ -18,12 +15,9 @@ import javax.crypto.spec.IvParameterSpec;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.phenopackets.secure.schema.core.Age;
-import org.phenopackets.secure.schema.core.Individual;
 import org.phenopackets.secure.schema.core.MetaData;
 import org.phenopackets.secure.schema.core.Resource;
-import org.phenopackets.secure.schema.core.TimeElement;
 import org.phenopackets.secure.schema.core.Update;
-import org.phenopackets.secure.schema.core.VitalStatus;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Timestamp;
