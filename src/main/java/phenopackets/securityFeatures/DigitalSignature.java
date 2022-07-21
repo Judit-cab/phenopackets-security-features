@@ -2,8 +2,6 @@ package phenopackets.securityFeatures;
 
 import com.google.crypto.tink.CleartextKeysetHandle;
 import com.google.crypto.tink.JsonKeysetReader;
-import com.google.crypto.tink.JsonKeysetWriter;
-import com.google.crypto.tink.KeyTemplates;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.PublicKeySign;
 import com.google.crypto.tink.PublicKeyVerify;
@@ -38,13 +36,6 @@ public class DigitalSignature {
      * @throws IOException              Failure during saving
      * @throws GeneralSecurityException Failure during keyset generation
      * */
-    private void createKeySet() throws IOException, GeneralSecurityException {
-        File keysetFile = new File(PK_FILE);
-        if (!keysetFile.exists()) {
-            KeysetHandle keysetHandle = KeysetHandle.generateNew(KeyTemplates.get("ECDSA"));
-            CleartextKeysetHandle.write(keysetHandle, JsonKeysetWriter.withFile(keysetFile));
-        }
-    }
 
     private static byte[] signElement(byte[] element) throws GeneralSecurityException, IOException, URISyntaxException{
         KeysetHandle handle = CleartextKeysetHandle.read(JsonKeysetReader.withFile(resourceFile.getFileFromResource(SK_FILE)));

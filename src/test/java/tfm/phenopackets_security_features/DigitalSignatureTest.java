@@ -17,7 +17,7 @@ public class DigitalSignatureTest {
     
     void checkSignature() throws IOException, URISyntaxException, ParseException{
         String mode = "sign";
-        String elementName = "test3";
+        String elementName = "test4";
         String msg = "Sign this message";
         String mode2 ="verify";
         

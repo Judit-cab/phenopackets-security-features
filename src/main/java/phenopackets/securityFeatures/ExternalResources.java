@@ -12,6 +12,8 @@ import com.nimbusds.jose.shaded.json.JSONObject;
 
 
 public class ExternalResources {
+
+    private static final String DEFAULT_PATH = "information.txt";
     //https://mkyong.com/java/java-read-a-file-from-resources-folder/
     // get a file from the resources folder
     // works everywhere, IDEA, unit test and JAR file.
@@ -31,6 +33,17 @@ public class ExternalResources {
             return new File(resource.toURI());
         }
 
+    }
+
+    public String getNewPath(String fileName){
+        URL resource = getClass().getClassLoader().getResource(DEFAULT_PATH);
+        String path = resource.toString().replace(DEFAULT_PATH, fileName);
+        return path;
+    }
+
+    public URL getURL(String fileName){
+        URL resource = getClass().getClassLoader().getResource(fileName);
+        return resource;
     }
 
 
@@ -54,7 +67,7 @@ public class ExternalResources {
             URL url = getClass().getClassLoader().getResource(fileName);
             File file = new File (url.toURI());
 
-            FileWriter fileWriter = new FileWriter(file);
+            FileWriter fileWriter = new FileWriter(file,true);
             fileWriter.write(jsonObject.toJSONString());
             fileWriter.close();
 
