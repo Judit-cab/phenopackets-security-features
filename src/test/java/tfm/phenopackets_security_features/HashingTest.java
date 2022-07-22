@@ -3,19 +3,23 @@ package tfm.phenopackets_security_features;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-import org.phenopackets.secure.schema.Phenopacket;
+
+import com.google.crypto.tink.subtle.Hex;
 
 import phenopackets.securityFeatures.Keccak256Hashing;
 
 
 public class HashingTest {
-    private Phenopacket originalValue;
-    private static String hashedValue = "719accc61a9cc126830e5906f9d672d06eab6f8597287095a2c55a8b775e7016";
+    private static String phenopacketId = "123450";
+    private static String hashedValue = "0d14ec3174ee68481d2a64252b4e728fedbc9407205c19a3de8e0a899c0ff951";
 
 
-    @Test public void testHashWithBouncyCastle() {
-        final String currentHashedValue = Keccak256Hashing.computeHash(originalValue);
-        assertEquals(hashedValue, currentHashedValue);
+    @Test public void testIdHash() {
+        final byte[] currentHashedValue = Keccak256Hashing.computeHash(phenopacketId.getBytes());
+        String hashValue = new String(Hex.encode(currentHashedValue));
+        System.out.println(hashValue);
+
+        assertEquals(hashedValue, hashValue);
     }
 
 }
