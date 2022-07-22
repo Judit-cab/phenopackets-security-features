@@ -6,6 +6,7 @@ import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.PublicKeySign;
 import com.google.crypto.tink.PublicKeyVerify;
 import com.google.crypto.tink.signature.SignatureConfig;
+import com.google.crypto.tink.subtle.Hex;
 import com.google.gson.stream.JsonReader;
 import com.nimbusds.jose.shaded.json.JSONObject;
 import com.nimbusds.jose.shaded.json.parser.JSONParser;
@@ -18,15 +19,18 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.util.Base64;
+import java.util.List;
 
 
 public class DigitalSignature {
 
     private static final String PK_FILE = "pk_verify.json"; 
     private static final String SK_FILE = "pk_sign.json"; 
-    private static final String SIGNATURES_FILE = "signaturesElements.json";
+    private static final String SIGNATURE_FILE = "signature.txt";
+    private static final String SIGNATURES_FILE = "signatureList.json";
     public static JSONObject jsonObj = new JSONObject();
     public static JSONParser jsonParser;
     static ExternalResources resourceFile = new ExternalResources();
@@ -74,7 +78,7 @@ public class DigitalSignature {
         }
     }
     
-    public static JSONObject protectWithDS(String mode, byte[] elementBytes, String elementName) throws IOException, URISyntaxException, ParseException{
+    public static void protectWithDS(String mode, byte[] elementBytes, String elementName) throws IOException, URISyntaxException, ParseException{
         
         try {
             SignatureConfig.register();
@@ -84,26 +88,22 @@ public class DigitalSignature {
                 //save the signature in a jsonObj
                 String ptSignature = new String(Base64.getEncoder().encode(signatureBytes), StandardCharsets.UTF_8);
                 jsonObj.appendField(elementName, ptSignature);
-                resourceFile.createJsonFile(SIGNATURES_FILE, jsonObj);
+                resourceFile.createSignFile(SIGNATURE_FILE, ptSignature);
+                resourceFile.addContentToJsonFile(SIGNATURES_FILE, jsonObj);
 
             }else if(mode.equals("verify")){
-                File signatures = resourceFile.getFileFromResource(SIGNATURES_FILE);
+                File signatureFile = resourceFile.getFileFromResource(SIGNATURE_FILE);
+                
+                List<String> lines = Files.readAllLines(signatureFile.toPath());
+                if (lines.size() != 1) {
+                    System.err.printf("The signature file should contain only one line,  got %d", lines.size());
+                }
+                
+                byte[] signatureBytes = Base64.getDecoder().decode(lines.get(0).trim());
 
-                try (FileReader reader = new FileReader(signatures)){
-                    JsonReader js =  new JsonReader(reader);
-                    js.beginObject();
-                    while (js.hasNext()) {
-                        String field = js.nextName();
-                        if (field.equals(elementName)) {
-                            String ptSignature = js.nextString();
-                            byte[] signatureBytes = Base64.getDecoder().decode(ptSignature);
-                            verifyElement(elementBytes, signatureBytes);
-                        }else {
-                          js.skipValue();
-                        }
-                      }
-                    js.endObject();
-                    js.close();
+                try{
+                    verifyElement(elementBytes, signatureBytes);
+                    
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -111,7 +111,32 @@ public class DigitalSignature {
         }catch (java.security.GeneralSecurityException e){
             System.out.println("Error protecting with DS");
         }
-        return jsonObj;
+    }
+
+    public static void searchSignatureAndVerify(byte[] elementBytes, String elementName) throws URISyntaxException, IOException, GeneralSecurityException{
+        File signaturesFile = resourceFile.getFileFromResource(SIGNATURES_FILE);
+
+        try (FileReader reader = new FileReader(signaturesFile)){
+            JsonReader js =  new JsonReader(reader);
+            js.beginObject();
+            
+            while (js.hasNext()) {
+                String field = js.nextName();
+                
+                if (field.equals(elementName)) {
+                    String ptSignature = js.nextString();
+                    byte[] signatureBytes = Base64.getDecoder().decode(ptSignature);
+                    verifyElement(elementBytes, signatureBytes);
+                }else {
+                    js.skipValue();
+                }
+            }
+            js.endObject();
+            js.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private DigitalSignature() {}

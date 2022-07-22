@@ -32,7 +32,7 @@ public class ElementsBuilder {
      * Function to create a Individual element with all fields
      */
 
-    public  Individual createSubject (String id, TimeElement timeAtLastEncounter, VitalStatus vitalStatus, int karyotypicSex) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException{
+    public static  Individual createSubject (String id, TimeElement timeAtLastEncounter, VitalStatus vitalStatus, int karyotypicSex) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException{
         
         // block to encrypt restricted field
         String lastEncounter = timeAtLastEncounter.toString();

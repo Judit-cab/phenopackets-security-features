@@ -6,8 +6,9 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-
+import com.google.crypto.tink.subtle.Hex;
 import com.nimbusds.jose.shaded.json.JSONObject;
 
 
@@ -62,7 +63,20 @@ public class ExternalResources {
     /*
      * Create a JSON File
      */
-    public void createJsonFile(String fileName, JSONObject jsonObject) throws URISyntaxException, IOException{
+    public void createSignFile(String fileName, String signature) throws URISyntaxException, IOException{
+        try {
+            File file = getFileFromResource(fileName);
+            FileWriter fileWriter = new FileWriter(file);
+            fileWriter.write(signature);
+            fileWriter.close();
+
+         } catch (IOException e) {
+            e.printStackTrace();
+         }
+         System.out.println("File successfully created!");
+      }
+
+    public void addContentToJsonFile(String fileName, JSONObject jsonObject) throws URISyntaxException{
         try {
             URL url = getClass().getClassLoader().getResource(fileName);
             File file = new File (url.toURI());
@@ -77,5 +91,4 @@ public class ExternalResources {
          System.out.println("JSON file created: "+jsonObject);
       }
 
-}    
-
+}

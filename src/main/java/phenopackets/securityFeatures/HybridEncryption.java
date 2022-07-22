@@ -9,27 +9,27 @@ import com.google.crypto.tink.KeyTemplates;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.hybrid.HybridConfig;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.nio.file.Files;
 import java.security.GeneralSecurityException;
+import java.util.List;
 
 public class HybridEncryption {
     private static final String SK_FILE = "sk_hybridEnc.json"; 
     private static final String PK_FILE = "pk_hybridEnc.json"; 
     static ExternalResources externalResource = new ExternalResources();
 
-    private static void createKeySet() throws IOException, GeneralSecurityException {
-        String pathSk = externalResource.getNewPath(SK_FILE);
-        String pathPk = externalResource.getNewPath(PK_FILE);
+    private static void createKeySet() throws IOException, GeneralSecurityException, URISyntaxException {
 
         // Generate  new private key
         KeysetHandle privateKey = KeysetHandle.generateNew(KeyTemplates.get("ECIES_P256_HKDF_HMAC_SHA256_AES128_GCM"));
-        CleartextKeysetHandle.write(privateKey, JsonKeysetWriter.withPath(pathSk));
+        CleartextKeysetHandle.write(privateKey, JsonKeysetWriter.withPath(externalResource.getFileFromResource(SK_FILE).getAbsolutePath()));
 
         // Obtain the public key 
         KeysetHandle publicKey = privateKey.getPublicKeysetHandle();
-        CleartextKeysetHandle.write(publicKey, JsonKeysetWriter.withPath(pathPk));
+        CleartextKeysetHandle.write(publicKey, JsonKeysetWriter.withPath(externalResource.getFileFromResource(PK_FILE).getAbsolutePath()));
     }
 
     private static byte[] hybridEncryption(byte[] element, byte[] contextInfo) throws GeneralSecurityException, URISyntaxException{
@@ -74,8 +74,9 @@ public class HybridEncryption {
     public static byte[] hybridEncryption(String mode, byte[] element, byte[] context) throws IOException, GeneralSecurityException, URISyntaxException{
         byte[] res;
         HybridConfig.register();
-        URL resource = externalResource.getURL(SK_FILE);
-        if (resource == null) {
+        File hybridFile = externalResource.getFileFromResource(SK_FILE);
+        List<String> lines = Files.readAllLines(hybridFile.toPath());
+        if (lines.size()==0) {
             createKeySet();
         }
 
