@@ -13,7 +13,6 @@ import org.phenopackets.secure.schema.core.PhenotypicFeature;
 import com.nimbusds.jose.shaded.json.parser.ParseException;
 
 import phenopackets.securityFeatures.DigitalSignature;
-import phenopackets.securityFeatures.Keccak256Hashing;
 
 import org.phenopackets.secure.schema.Phenopacket;
 

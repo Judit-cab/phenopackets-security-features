@@ -6,9 +6,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
-import com.google.crypto.tink.subtle.Hex;
 import com.nimbusds.jose.shaded.json.JSONObject;
 
 

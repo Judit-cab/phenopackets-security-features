@@ -19,12 +19,14 @@ import java.util.List;
 public class HybridEncryption {
     private static final String SK_FILE = "sk_hybridEnc.json"; 
     private static final String PK_FILE = "pk_hybridEnc.json"; 
+    private static final String ALGORITHM = "ECIES_P256_HKDF_HMAC_SHA256_AES128_GCM";
+    
     static ExternalResources externalResource = new ExternalResources();
 
     private static void createKeySet() throws IOException, GeneralSecurityException, URISyntaxException {
 
         // Generate  new private key
-        KeysetHandle privateKey = KeysetHandle.generateNew(KeyTemplates.get("ECIES_P256_HKDF_HMAC_SHA256_AES128_GCM"));
+        KeysetHandle privateKey = KeysetHandle.generateNew(KeyTemplates.get(ALGORITHM));
         CleartextKeysetHandle.write(privateKey, JsonKeysetWriter.withPath(externalResource.getFileFromResource(SK_FILE).getAbsolutePath()));
 
         // Obtain the public key 
