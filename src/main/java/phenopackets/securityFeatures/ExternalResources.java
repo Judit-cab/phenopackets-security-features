@@ -7,12 +7,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
 
+import com.google.crypto.tink.subtle.Hex;
 import com.nimbusds.jose.shaded.json.JSONObject;
 
 
 public class ExternalResources {
 
-    private static final String DEFAULT_PATH = "information.txt";
+    private static final String DEFAULT_PATH = "readME.txt";
+    private static final String FORMAT_FILE =".txt";
+    
     //https://mkyong.com/java/java-read-a-file-from-resources-folder/
     // get a file from the resources folder
     // works everywhere, IDEA, unit test and JAR file.
@@ -34,9 +37,12 @@ public class ExternalResources {
 
     }
 
-    public String getNewPath(String fileName){
+    public String getNewPath(String fileName) throws URISyntaxException{
+        
         URL resource = getClass().getClassLoader().getResource(DEFAULT_PATH);
-        String path = resource.toString().replace(DEFAULT_PATH, fileName);
+        String path = resource.toString().replace(DEFAULT_PATH, fileName+FORMAT_FILE).replace("file:", "");
+        System.out.println(path);
+
         return path;
     }
 
@@ -79,14 +85,32 @@ public class ExternalResources {
             URL url = getClass().getClassLoader().getResource(fileName);
             File file = new File (url.toURI());
 
-            FileWriter fileWriter = new FileWriter(file,true);
+            BufferedWriter fileWriter = new BufferedWriter(new FileWriter(file,true));
             fileWriter.write(jsonObject.toJSONString());
+            fileWriter.newLine();
             fileWriter.close();
 
          } catch (IOException e) {
             e.printStackTrace();
          }
          System.out.println("JSON file created: "+jsonObject);
+      }
+
+      public void addHashToFile(String fileName, byte[] hash, String element) throws IOException, URISyntaxException{
+        try{ 
+            
+            String path = getNewPath(fileName);
+            File hashFile = new File(path);
+
+            BufferedWriter fileWriter = new BufferedWriter(new FileWriter(hashFile,true));
+            
+            fileWriter.write(element+":"+Hex.encode(hash));
+            fileWriter.newLine();
+            fileWriter.close();
+
+        }catch (IOException ex){
+            ex.printStackTrace();
+        }
       }
 
 }

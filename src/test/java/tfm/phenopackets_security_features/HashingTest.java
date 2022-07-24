@@ -1,6 +1,5 @@
 package tfm.phenopackets_security_features;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -10,7 +9,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.phenopackets.secure.schema.core.Age;
+import org.phenopackets.secure.schema.core.Disease;
 import org.phenopackets.secure.schema.core.Evidence;
 import org.phenopackets.secure.schema.core.OntologyClass;
 import org.phenopackets.secure.schema.core.PhenotypicFeature;
@@ -18,7 +17,8 @@ import org.phenopackets.secure.schema.core.TimeElement;
 
 import phenopackets.BlockBuilder;
 import phenopackets.MainElements;
-import phenopackets.securityFeatures.HybridEncryption;
+import phenopackets.securityFeatures.Hashing;
+
 
 
 
@@ -26,30 +26,36 @@ public class HashingTest {
 
     @Test
     void checkPhenotypicElement() throws IOException, GeneralSecurityException, URISyntaxException{
+        String phenopacketId = "123654";
+
         OntologyClass type = BlockBuilder.createOntologyClass("id", "label");
         OntologyClass severity = BlockBuilder.createOntologyClass("id", "label");
         List<Evidence> evidence =  new ArrayList<Evidence>();
-        Age age = Age.newBuilder().setIso8601Duration("isoAge").build();
-        TimeElement element = TimeElement.newBuilder().setAge(age).build();
-
+        TimeElement element = BlockBuilder.creaTimeElementTimestamp("1081157732");
+        
         PhenotypicFeature phenotypic = MainElements.phenotypicFeature(type, severity, evidence, element, element);
 
-        String context = "Test for phenotypic feature element";
+        String hash = Hashing.computePhenotypicFeatureHash(phenotypic, phenopacketId, "phenotypic3");
 
-        byte[] plainTextBytes = phenotypic.toByteArray();
-        byte[] contextBytes = context.getBytes(); 
+        String hashFile = Hashing.getHash(phenopacketId, "phenotypic3");
 
-        byte[] cipher = HybridEncryption.hybridEncryption("encrypt", plainTextBytes, contextBytes);
+        Assertions.assertEquals(hash, hashFile);
+    }
 
-        byte[] plainText = HybridEncryption.hybridEncryption("decrypt", cipher, contextBytes);
+    @Test
+    void createDiseaseElementHash() throws IOException, GeneralSecurityException, URISyntaxException{
+        String phenopacketId = "123654";
 
-        //String result = new String(plainText);
-        PhenotypicFeature result = PhenotypicFeature.parseFrom(plainText);
-        System.out.println("This is the original:" + phenotypic);
+        OntologyClass type = BlockBuilder.createOntologyClass("id", "label");
+        TimeElement element = BlockBuilder.createTimeElementAge("isoAge".getBytes(), phenopacketId.getBytes());
+        List<OntologyClass> stages = new ArrayList<OntologyClass>();
+        Disease disease = MainElements.disease(type, true, stages, stages, type, element);
+        
+        String hash = Hashing.computeDiseaseHash(disease, phenopacketId, "Disease");
 
-        System.out.println("This is the element after decryption:" + result);
+        String hashFile = Hashing.getHash(phenopacketId, "Disease");
 
-        Assertions.assertEquals(phenotypic,result);
+        Assertions.assertEquals(hash, hashFile);
 
     }
 

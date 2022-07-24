@@ -41,7 +41,7 @@ public class HybridEncryptionTest {
         String isoAge = "P70Y";
         String id = "123456";
 
-        TimeElement age = BlockBuilder.creaTimeElementAge(isoAge.getBytes(), id.getBytes());
+        TimeElement age = BlockBuilder.createTimeElementAge(isoAge.getBytes(), id.getBytes());
 
         System.out.println(age);
     
