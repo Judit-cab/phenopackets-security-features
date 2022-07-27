@@ -13,6 +13,8 @@ import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.List;
 
@@ -30,8 +32,36 @@ public class MainElements {
     }
 
     /**
+     * Method to create an arbitrary identifier for Individual Element
+     * @return the new id
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchProviderException
+     */
+    private static String generateIndividualId() throws NoSuchAlgorithmException, NoSuchProviderException{
+
+        SecureRandom secureRandom;
+        String randomNumber = new String();
+
+        // Get a true random number generator
+        try {
+            secureRandom = SecureRandom.getInstanceStrong();
+        } catch (NoSuchAlgorithmException ex) {
+            secureRandom = new SecureRandom();
+        }
+
+        // Get a random Number of 6 digits
+        for(int i=0; i<6; i++){
+            randomNumber += String.valueOf(secureRandom.nextInt(9));
+
+        }
+        // Individual identifier beggins with P
+        String id = "P"+randomNumber;
+
+        return id;
+    }
+
+    /**
      * Function to create a new Individual element with all fields
-     * @param id required, arbitrary
      * @param timeAtLastEncounter recommended - age of individual
      * @param vitalStatus recommended - vital status of the individual
      * @param karyotypicSex optional, 0 by default
@@ -42,8 +72,9 @@ public class MainElements {
      * @throws InvalidAlgorithmParameterException
      * @throws BadPaddingException
      * @throws IllegalBlockSizeException
+     * @throws NoSuchProviderException
      */
-    public static  Individual createSubject (String id, TimeElement timeAtLastEncounter, VitalStatus vitalStatus, int karyotypicSex) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException{
+    public static  Individual createSubject (TimeElement timeAtLastEncounter, VitalStatus vitalStatus, int karyotypicSex) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException{
         
         // Check timeElement is actually an age element
         if (!timeAtLastEncounter.hasAge()){
@@ -51,8 +82,11 @@ public class MainElements {
             System.exit(0);
         }
 
+        // Create an arbitrary identifier
+        final String PROBAND_ID = generateIndividualId();
+
         return Individual.newBuilder()
-            .setId(id)
+            .setId(PROBAND_ID)
             .setTimeAtLastEncounter(timeAtLastEncounter)
             .setVitalStatus(vitalStatus)
             .setKaryotypicSexValue(karyotypicSex)
@@ -118,14 +152,14 @@ public class MainElements {
 
 
     /**
-     * Function to create new metadata element 
-     * @param created
-     * @param createdBy
-     * @param submittedBy
-     * @param resources
-     * @param updates
-     * @param schemaVersion
-     * @return
+     * Function to create new MetaData element 
+     * @param created optional - time was created
+     * @param createdBy optional - person who created the phenopacket
+     * @param submittedBy optional - person who submitted the phenopacket
+     * @param resources optional - List of ontologies used
+     * @param updates optional - List of updates
+     * @param schemaVersion optional 
+     * @return new Metadata Element
      * @throws IOException
      * @throws GeneralSecurityException
      * @throws URISyntaxException
@@ -142,7 +176,24 @@ public class MainElements {
             .build(); 
     }
 
-    public static MetaData protectedMetadataCreator(Timestamp created, String createdBy, String submittedBy, List<Resource> resources, List<Update> updates, String schemaVersion, byte[] context) throws IOException, GeneralSecurityException, URISyntaxException{
+    /**
+     * Method to create a MetaData element 
+     * protecting the name of the person who creates the Phenopacket
+     * @param created optional - time was created
+     * @param createdBy optional - person who created the phenopacket
+     * @param submittedBy optional - person who submitted the phenopacket
+     * @param resources optional - List of ontologies used
+     * @param updates optional - List of updates
+     * @param schemaVersion optional 
+     * @param context required to encrypt the data
+     * @return
+     * @throws IOException
+     * @throws GeneralSecurityException
+     * @throws URISyntaxException
+     */
+    public static MetaData protectedMetaDataCreator(Timestamp created, String createdBy, String submittedBy, List<Resource> resources, List<Update> updates, String schemaVersion, byte[] context) throws IOException, GeneralSecurityException, URISyntaxException{
+        
+        // Use of hybridEncryption to protect the creator of the phenopacket
         byte[] cipher = HybridEncryption.hybridEncryption(MODE_ENC, createdBy.getBytes(), context);
         String cipherCreatedBy = Base64.getEncoder().encodeToString(cipher);
        
@@ -156,85 +207,156 @@ public class MainElements {
             .build(); 
     }
 
-
-    /*
+     /**
      * Function to create protected metadata element 
+     * @param metaData required - MetaData element to protect
+     * @param context required - context used in the encryption
+     * @return encrypted byte[] representing the element
+     * @throws IOException
+     * @throws GeneralSecurityException
+     * @throws URISyntaxException
      */
-     public static byte[] protectedMetaData (MetaData metaData, byte[] context) throws IOException, GeneralSecurityException, URISyntaxException{
+    public static byte[] protectedMetaData (MetaData metaData, byte[] context) throws IOException, GeneralSecurityException, URISyntaxException{
         
+        // Get the bytes of the Element
         byte[] metaDataBytes = metaData.toByteArray();
+        
+        // Encrypt the whole element
         byte[] cipherMetaData = HybridEncryption.hybridEncryption(MODE_ENC, metaDataBytes, context);
 
+        // return the cipher element
         return cipherMetaData;
      }
-     /*
-     * Function to get MetaData element 
-     */
 
-     public static MetaData getMetaData(byte[] metaDataBytes, byte[] context) throws IOException, GeneralSecurityException, URISyntaxException{
+
+     /**
+     * Function to decrypt and get the MetaData element 
+     * @param metaDataBytes required - the cipher element
+     * @param context required 
+     * @return plain MetaData
+     * @throws IOException
+     * @throws GeneralSecurityException
+     * @throws URISyntaxException
+     */
+    public static MetaData getMetaData(byte[] metaDataBytes, byte[] context) throws IOException, GeneralSecurityException, URISyntaxException{
        
+        // Decrypt the above bytes with the decryption method
         byte[] plainMetaData = HybridEncryption.hybridEncryption(MODE_DEC, metaDataBytes, context);
         
+        // return the MetaData element
         return MetaData.parseFrom(plainMetaData);
      }
 
-       /*
-     * Create MedicalAction element with action equals to Procedure
+     /**
+     * Method to decrypt and get the creator of the phenopacket
+     * @param metaData required - the metadata element with the encrypted creator
+     * @param context required 
+     * @return plain Created_by field
+     * @throws IOException
+     * @throws GeneralSecurityException
+     * @throws URISyntaxException
      */
-    public static MedicalAction medicalProcedure(Procedure procedure, OntologyClass target, OntologyClass intent, OntologyClass response,
-    List<OntologyClass> adverseEvents, OntologyClass termination){
+    public static String getMetaDataCreator(MetaData metaData, byte[] context) throws IOException, GeneralSecurityException, URISyntaxException{
+       
+        // Get the created_by field bytes
+        byte[] createdBytes = metaData.getCreatedBy().getBytes();
+        
+        // Decrypt the above bytes with the decryption method
+        byte[] plainCreatedBy = HybridEncryption.hybridEncryption(MODE_DEC, createdBytes, context);
+        
+        // return the Creator
+        return new String(plainCreatedBy);
+     }
+
+    /**
+     * Method to reate MedicalAction element with Procedure action
+     * @param procedure required - Procedure action
+     * @param treatmentTarget optional - condition or disease
+     * @param treatmentIntent optional - intention of the treatment
+     * @param treatmentResponse optional - how patient responded
+     * @param adverseEvents optional 
+     * @param treatmentTermination optional - reason to stop
+     * @return new MedicalAction element
+     */
+    public static MedicalAction createMedicalProcedure(Procedure procedure, OntologyClass treatmentTarget, OntologyClass treatmentIntent, OntologyClass treatmentResponse,
+    List<OntologyClass> adverseEvents, OntologyClass treatmentTermination){
+        
         return MedicalAction.newBuilder()
                 .setProcedure(procedure)
-                .setTreatmentTarget(target)
-                .setTreatmentIntent(intent)
-                .setResponseToTreatment(response)
+                .setTreatmentTarget(treatmentTarget)
+                .setTreatmentIntent(treatmentIntent)
+                .setResponseToTreatment(treatmentResponse)
                 .addAllAdverseEvents(adverseEvents)
-                .setTreatmentTerminationReason(termination)
+                .setTreatmentTerminationReason(treatmentTermination)
                 .build();
     }
 
-     /*
-     * Create MedicalAction element with action equals to Treatment
+    /**
+     * Method to reate MedicalAction element with Treatment action
+     * @param treatment required - Treatment action
+     * @param treatmentTarget optional - condition or disease
+     * @param treatmentIntent optional - intention of the treatment
+     * @param treatmentResponse optional - how patient responded
+     * @param adverseEvents optional 
+     * @param treatmentTermination optional - reason to stop
+     * @return
      */
-    public static MedicalAction medicalTreatment(Treatment treatment, OntologyClass target, OntologyClass intent, OntologyClass response,
-    List<OntologyClass> adverseEvents, OntologyClass termination){
+    public static MedicalAction createMedicalTreatment(Treatment treatment, OntologyClass treatmentTarget, OntologyClass treatmentIntent, OntologyClass treatmentResponse,
+    List<OntologyClass> adverseEvents, OntologyClass treatmentTermination){
+        
         return MedicalAction.newBuilder()
                 .setTreatment(treatment)
-                .setTreatmentTarget(target)
-                .setTreatmentIntent(intent)
-                .setResponseToTreatment(response)
+                .setTreatmentTarget(treatmentTarget)
+                .setTreatmentIntent(treatmentIntent)
+                .setResponseToTreatment(treatmentResponse)
                 .addAllAdverseEvents(adverseEvents)
-                .setTreatmentTerminationReason(termination)
+                .setTreatmentTerminationReason(treatmentTermination)
                 .build();
     }
 
-     /*
-     * Create MedicalAction element with action equals to TherapeuticRegimen
+    /**
+     * Method to reate MedicalAction element with Therapeutic Regimen action
+     * @param therapeuticRegimen required - Therapeutic Regimen action
+     * @param treatmentTarget optional - condition or disease
+     * @param treatmentIntent optional - intention of the treatment
+     * @param treatmentResponse optional - how patient responded
+     * @param adverseEvents optional 
+     * @param treatmentTermination optional - reason to stop
+     * @return
      */
-    public static MedicalAction medicalRegimen(TherapeuticRegimen regimen, OntologyClass target, OntologyClass intent, OntologyClass response,
-    List<OntologyClass> adverseEvents, OntologyClass termination){
+    public static MedicalAction createMedicalTherapeuticRegimen(TherapeuticRegimen therapeuticRegimen, OntologyClass treatmentTarget, OntologyClass treatmentIntent, OntologyClass treatmentResponse,
+    List<OntologyClass> adverseEvents, OntologyClass treatmentTermination){
+        
         return MedicalAction.newBuilder()
-                .setTherapeuticRegimen(regimen)
-                .setTreatmentTarget(target)
-                .setTreatmentIntent(intent)
-                .setResponseToTreatment(response)
+                .setTherapeuticRegimen(therapeuticRegimen)
+                .setTreatmentTarget(treatmentTarget)
+                .setTreatmentIntent(treatmentIntent)
+                .setResponseToTreatment(treatmentResponse)
                 .addAllAdverseEvents(adverseEvents)
-                .setTreatmentTerminationReason(termination)
+                .setTreatmentTerminationReason(treatmentTermination)
                 .build();
     }
 
-     /*
-     * Create MedicalAction element with action equals to RadiationTherapy
+
+    /**
+     * Method to reate MedicalAction element with Radiation Therapy action
+     * @param radiationTherapy required - Radiation Therapy action
+     * @param treatmentTarget optional - condition or disease
+     * @param treatmentIntent optional - intention of the treatment
+     * @param treatmentResponse optional - how patient responded
+     * @param adverseEvents optional 
+     * @param treatmentTermination optional - reason to stop
+     * @return
      */
-    public static MedicalAction medicalTherapy(RadiationTherapy radiation, OntologyClass target, OntologyClass intent, OntologyClass response,
-    List<OntologyClass> adverseEvents, OntologyClass termination){
+    public static MedicalAction createMedicalRadiationTherapy(RadiationTherapy radiationTherapy, OntologyClass treatmentTarget, OntologyClass treatmentIntent, OntologyClass treatmentResponse,
+    List<OntologyClass> adverseEvents, OntologyClass treatmentTermination){
         return MedicalAction.newBuilder()
-                .setRadiationTherapy(radiation)
-                .setTreatmentTarget(target)
-                .setTreatmentIntent(intent)
-                .setResponseToTreatment(response)
+                .setRadiationTherapy(radiationTherapy)
+                .setTreatmentTarget(treatmentTarget)
+                .setTreatmentIntent(treatmentIntent)
+                .setResponseToTreatment(treatmentResponse)
                 .addAllAdverseEvents(adverseEvents)
-                .setTreatmentTerminationReason(termination)
+                .setTreatmentTerminationReason(treatmentTermination)
                 .build();
     }
     

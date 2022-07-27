@@ -1,12 +1,6 @@
 package phenopackets;
 
-import org.phenopackets.secure.schema.core.Age;
-import org.phenopackets.secure.schema.core.DoseInterval;
-import org.phenopackets.secure.schema.core.OntologyClass;
-import org.phenopackets.secure.schema.core.Quantity;
-import org.phenopackets.secure.schema.core.Resource;
-import org.phenopackets.secure.schema.core.TimeElement;
-import org.phenopackets.secure.schema.core.TimeInterval;
+import org.phenopackets.secure.schema.core.*;
 
 import com.google.protobuf.Timestamp;
 
@@ -16,6 +10,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.util.Base64;
+import java.util.List;
 
 
 public class BlockBuilder {
@@ -154,6 +149,74 @@ public class BlockBuilder {
         return TimeInterval.newBuilder()
             .setStart(timestampStart)
             .setEnd(timestampEnd)
+            .build();
+    }
+
+
+    /**
+     * Method to set the action Procedure
+     * @param code required
+     * @param bodySite
+     * @param performed
+     * @return new Procedure action
+     */
+    public static Procedure setProcedure (OntologyClass code, OntologyClass bodySite, TimeElement performed){
+        
+        return Procedure.newBuilder()
+            .setCode(code)
+            .setBodySite(bodySite)
+            .setPerformed(performed)
+            .build();
+    }
+
+    /**
+     * Method to set the action Treatment
+     * @param agent required
+     * @param adminRoute recommended
+     * @param doseIntervals recommended
+     * @return new Treatment action
+     */
+    public static Treatment setTreatment (OntologyClass agent, OntologyClass adminRoute, List<DoseInterval> doseIntervals){
+        
+        return Treatment.newBuilder()
+            .setAgent(agent)
+            .setRouteOfAdministration(adminRoute)
+            .addAllDoseIntervals(doseIntervals)
+            .build();
+    }
+
+    /**
+     * Method to set the action Radiation Therapy
+     * @param modality required
+     * @param bodySite required
+     * @param dosage required 
+     * @param fractions required
+     * @return new RadiationTherapy action
+     */
+    public static RadiationTherapy setRadiationTheraphy(OntologyClass modality, OntologyClass bodySite, int dosage, int fractions){
+        
+        return RadiationTherapy.newBuilder()
+            .setModality(modality)
+            .setBodySite(bodySite)
+            .setDosage(dosage)
+            .setFractions(fractions)
+            .build();
+    }
+
+    /**
+     * Method to set the action Therapeutic Regimen 
+     * @param id required
+     * @param startTime recommended
+     * @param endTime recommended 
+     * @param status required - Values : Unkown, started, completed and discontinued
+     * @return new TherapeuticRegimen action
+     */
+    public static TherapeuticRegimen setTherapeuticRegimen(OntologyClass id, TimeElement startTime, TimeElement endTime, int status){
+        return TherapeuticRegimen.newBuilder()
+            .setOntologyClass(id)
+            .setStartTime(startTime)
+            .setEndTime(endTime)
+            .setRegimenStatusValue(status)
             .build();
     }
 
