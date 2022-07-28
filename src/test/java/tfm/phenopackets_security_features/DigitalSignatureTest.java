@@ -41,7 +41,7 @@ public class DigitalSignatureTest {
         OntologyClass severity = BlockBuilder.createOntologyClass("id", "label");
         List<Evidence> evidence =  new ArrayList<Evidence>();
         TimeElement element = BlockBuilder.creaTimeElementTimestamp("1081158832");
-        PhenotypicFeature phenotypic = MainElements.phenotypicFeature(type, severity, evidence, element, element);
+        PhenotypicFeature phenotypic = MainElements.createPhenotypicFeature(type, severity, evidence, element, element);
         List<PhenotypicFeature> phenotypics = new ArrayList<PhenotypicFeature>();
         phenotypics.add(phenotypic);
 
@@ -61,7 +61,7 @@ public class DigitalSignatureTest {
 
         //Create disease
         List<OntologyClass> stages = new ArrayList<OntologyClass>();
-        Disease disease = MainElements.disease(type, true, stages, stages, type, element);
+        Disease disease = MainElements.createDisease(type, true, stages, stages, type, element);
         List<Disease> diseases = new ArrayList<Disease>();
         diseases.add(disease);
 

@@ -103,7 +103,7 @@ public class MainElements {
      * @param resolution optional - time at was resolved
      * @return PhenotypicFeature element
      */
-    public static PhenotypicFeature phenotypicFeature (OntologyClass type, OntologyClass severity, List<Evidence> evidence, TimeElement onset, TimeElement resolution){
+    public static PhenotypicFeature createPhenotypicFeature (OntologyClass type, OntologyClass severity, List<Evidence> evidence, TimeElement onset, TimeElement resolution){
         
         // Check timeElements correspond to Timestamp Elements
         if (!onset.hasTimestamp() || !resolution.hasTimestamp()){
@@ -130,7 +130,7 @@ public class MainElements {
      * @param onset optional - represent the age of onset of the disease
      * @return Disease element
      */
-    public static Disease disease (OntologyClass term, boolean excluded, List<OntologyClass> diseaseStages, List<OntologyClass>tnmFindings, OntologyClass primarySite, TimeElement onset){
+    public static Disease createDisease (OntologyClass term, boolean excluded, List<OntologyClass> diseaseStages, List<OntologyClass>tnmFindings, OntologyClass primarySite, TimeElement onset){
         
         // Check timeElement is actually an age element
 

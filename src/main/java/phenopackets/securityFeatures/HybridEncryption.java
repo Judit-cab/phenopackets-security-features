@@ -23,6 +23,12 @@ public class HybridEncryption {
     
     static ExternalResources externalResource = new ExternalResources();
 
+    /**
+     * Method to create the assymetric keyset : private and public key
+     * @throws IOException
+     * @throws GeneralSecurityException
+     * @throws URISyntaxException
+     */
     private static void createKeySet() throws IOException, GeneralSecurityException, URISyntaxException {
 
         // Generate  new private key
@@ -34,27 +40,48 @@ public class HybridEncryption {
         CleartextKeysetHandle.write(publicKey, JsonKeysetWriter.withPath(externalResource.getFileFromResource(PK_FILE).getAbsolutePath()));
     }
 
+    /**
+     * Private method to encrypt the data
+     * @param element required - the element or field to encrypt
+     * @param contextInfo required - context related with the data
+     * @return the encrypted data
+     * @throws GeneralSecurityException
+     * @throws URISyntaxException
+     */
     private static byte[] hybridEncryption(byte[] element, byte[] contextInfo) throws GeneralSecurityException, URISyntaxException{
-        // Read the keyset into a KeysetHandle.
+        
+        // Read the keyset into a KeysetHandle
         KeysetHandle handle = null;
         try {
             handle = CleartextKeysetHandle.read(JsonKeysetReader.withFile(externalResource.getFileFromResource(PK_FILE)));
         } catch (GeneralSecurityException | IOException ex) {
-            System.err.println("Error: " + ex);
+            System.err.println("Process error: " + ex);
         }
-
+        
+        // Get primitive related to the encryption
         HybridEncrypt encryptor = null;
         try {
             encryptor = handle.getPrimitive(HybridEncrypt.class);
         } catch (GeneralSecurityException ex) {
-            System.err.println("Cannot create primitive, got error: " + ex);
+            System.err.println("Process error: " + ex);
         }
-        // Use the primitive to encrypt data.
+
+        // Encrypt and return the ciphertext
         byte[] ciphertext = encryptor.encrypt(element, contextInfo);
         return ciphertext;
     }
 
+    /**
+     * Private method to decrypt the data
+     * @param cipher required - the element or field to decryt
+     * @param contextInfo required - context related with the data
+     * @return the plaintext
+     * @throws GeneralSecurityException
+     * @throws URISyntaxException
+     */
     private static byte[] hybridDecryption(byte[] cipher, byte[] contextInfo) throws GeneralSecurityException, URISyntaxException{
+        
+        // Read the keyset into a KeysetHandle
         KeysetHandle handle = null;
         try {
             handle = CleartextKeysetHandle.read(JsonKeysetReader.withFile(externalResource.getFileFromResource(SK_FILE)));
@@ -62,32 +89,48 @@ public class HybridEncryption {
             System.err.println("Error: " + ex);
         }
 
+        // Get primitive related to the decryption
         HybridDecrypt decryptor = null;
         try {
           decryptor = handle.getPrimitive(HybridDecrypt.class);
         } catch (GeneralSecurityException ex) {
           System.err.println("Cannot create primitive, got error: " + ex);
         }
-        // Use the primitive to decrypt data.
+        // Decrypt and return the plaintext
         byte[] plaintext = decryptor.decrypt(cipher, contextInfo);
         return plaintext;
       }
     
+    /**
+     * Main method to encrypt and decrypt with an hybrid encryption any element or data
+     * @param mode required - only two methods allowed: encrypt or decrypt
+     * @param element required - the element or field to encrypt/decryt
+     * @param context required - context related with the data
+     * @return the corresponding bytes to encryption/decryption
+     * @throws IOException
+     * @throws GeneralSecurityException
+     * @throws URISyntaxException
+     */
     public static byte[] hybridEncryption(String mode, byte[] element, byte[] context) throws IOException, GeneralSecurityException, URISyntaxException{
+        
         byte[] res;
+        // Initialize the hybrid configuration
         HybridConfig.register();
+        // Check if exist the keyset
         File hybridFile = externalResource.getFileFromResource(SK_FILE);
+        
         List<String> lines = Files.readAllLines(hybridFile.toPath());
+        // If not, create the keyset for the process
         if (lines.size()==0) {
             createKeySet();
         }
 
+        // Check the mode is correct
         if (!mode.equals("encrypt") && !mode.equals("decrypt")) {
           System.err.println("Incorrect mode.");
         }
 
-        // Register all hybrid encryption key types with the Tink runtime.
-        
+        // If the mode is encrypt then call function hybridEncryption, otherwise call hybridDecryption
         if (mode.equals("encrypt")) {
             res = hybridEncryption(element,context);
             return res;

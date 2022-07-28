@@ -33,7 +33,7 @@ public class HashingTest {
         List<Evidence> evidence =  new ArrayList<Evidence>();
         TimeElement element = BlockBuilder.creaTimeElementTimestamp("1081157732");
         
-        PhenotypicFeature phenotypic = MainElements.phenotypicFeature(type, severity, evidence, element, element);
+        PhenotypicFeature phenotypic = MainElements.createPhenotypicFeature(type, severity, evidence, element, element);
 
         String hash = Hashing.computePhenotypicFeatureHash(phenotypic, phenopacketId, "phenotypic3");
 
@@ -49,7 +49,7 @@ public class HashingTest {
         OntologyClass type = BlockBuilder.createOntologyClass("id", "label");
         TimeElement element = BlockBuilder.createTimeElementAge("isoAge".getBytes(), phenopacketId.getBytes());
         List<OntologyClass> stages = new ArrayList<OntologyClass>();
-        Disease disease = MainElements.disease(type, true, stages, stages, type, element);
+        Disease disease = MainElements.createDisease(type, true, stages, stages, type, element);
         
         String hash = Hashing.computeDiseaseHash(disease, phenopacketId, "Disease");
 

@@ -2,9 +2,6 @@ package phenopackets;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.List;
 import java.util.UUID;
 

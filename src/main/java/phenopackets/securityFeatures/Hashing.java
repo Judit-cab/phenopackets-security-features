@@ -18,46 +18,90 @@ public class Hashing {
     static ExternalResources externalFile = new ExternalResources();
     private static final String FORMAT_FILE =".txt";
 
+    /**
+     * Private method to calculate the hash with Keccak
+     * @param element required - the element to compute the hash
+     * @return the hash bytes
+     */
     private static byte[] computeHash(byte[] element) {
+
+        // Generate a new Keccak instance
         Keccak.Digest256 digest256 = new Keccak.Digest256();
+        // Compute hash of an element
         byte[] hashBytes = digest256.digest(element);
+
         return hashBytes;
     }
 
-    public static String computeDiseaseHash(Disease diseaseElement, String phenopacket, String diseaseName) throws IOException, URISyntaxException{
+    /**
+     * Method to compute the hash of the Disease element
+     * @param diseaseElement required - the Disease element
+     * @param phenopacketID required - Phenopacket ID
+     * @param diseaseName required - the specific disease name
+     * @return the hash 
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    public static String computeDiseaseHash(Disease diseaseElement, String phenopacketID, String diseaseName) throws IOException, URISyntaxException{
 
         byte[] diseaseBytes = diseaseElement.toByteArray();
         byte [] hash = computeHash(diseaseBytes);
 
-        externalFile.addHashToFile(phenopacket, hash, diseaseName);
+        externalFile.addHashToFile(phenopacketID, hash, diseaseName);
 
 
         return new String(Hex.encode(hash));
         
     }
 
-    public static String computePhenotypicFeatureHash(PhenotypicFeature phenotypicFeature, String phenopacket, String phenotypicName) throws IOException, URISyntaxException{
+    /**
+     * Method to compute the hash of the Phenotypic Feature element
+     * @param phenotypicFeature required - the Phenotypic Feature element
+     * @param phenopacketID required - Phenopacket ID
+     * @param phenotypicName required - the specific phenotypic name
+     * @return the hash String
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    public static String computePhenotypicFeatureHash(PhenotypicFeature phenotypicFeature, String phenopacketID, String phenotypicName) throws IOException, URISyntaxException{
 
         byte[] phenotypicFeatureBytes = phenotypicFeature.toByteArray();
         byte [] hash = computeHash(phenotypicFeatureBytes);
 
-        externalFile.addHashToFile(phenopacket, hash, phenotypicName);
+        externalFile.addHashToFile(phenopacketID, hash, phenotypicName);
 
         return new String(Hex.encode(hash));
         
     }
 
-    public static String  computeMedicalAction(MedicalAction medicalAction, String phenopacket, String medicalActionName) throws IOException, URISyntaxException{
+    /**
+     * Method to compute the hash of the Disease element
+     * @param medicalAction required- a MedicalAction element
+     * @param phenopacketID required - Phenopacket ID
+     * @param medicalActionName required - the specific medical action performed
+     * @return the hash String
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    public static String  computeMedicalAction(MedicalAction medicalAction, String phenopacketID, String medicalActionName) throws IOException, URISyntaxException{
 
         byte[] medicalActionBytes = medicalAction.toByteArray();
         byte [] hash = computeHash(medicalActionBytes);
 
-        externalFile.addHashToFile(phenopacket, hash, medicalActionName);
+        externalFile.addHashToFile(phenopacketID, hash, medicalActionName);
 
         return new String(Hex.encode(hash));
         
     }
 
+    /**
+     * Method to get the hash of an element
+     * @param fileName required - the file where the hash is stored
+     * @param element required - the element to obtain the hash
+     * @return the hash String
+     * @throws URISyntaxException
+     * @throws IOException
+     */
     public static String getHash(String fileName, String element) throws URISyntaxException, IOException{
         String hash = null;
 
