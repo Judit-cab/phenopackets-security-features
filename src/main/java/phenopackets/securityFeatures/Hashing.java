@@ -116,7 +116,31 @@ public class Hashing {
             }
 
         }
+
         return hash;
     }
+
+    /**
+     * Function to check if the stored hash is the same as the new computed one
+     * @param computedHash required
+     * @param storedHash required
+     * @return boolean - if hashes are equal then returns true, otherwise returns false
+     */
+    public static boolean checkHash(String computedHash, String storedHash){
+        
+        boolean result = false;
+        // Input parameter verification
+        if(!computedHash.isBlank() && !storedHash.isBlank()){
+            // Compare both values
+            result = computedHash.equals(storedHash);
+            System.out.println(result);
+        }else{
+            throw new NullPointerException();
+        }
+
+        return result;
+    }
+
+
 
 }

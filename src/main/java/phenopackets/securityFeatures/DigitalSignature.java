@@ -123,24 +123,7 @@ public class DigitalSignature {
                 resourceFile.addContentToJsonFile(SIGNATURES_FILE, jsonObj);
 
             }else if(mode.equals("verify")){
-                // Get the file with the signature
-                File signatureFile = resourceFile.getFileFromResource(SIGNATURE_FILE);
-                
-                List<String> lines = Files.readAllLines(signatureFile.toPath());
-                if (lines.size() != 1) {
-                    System.err.printf("Error getting the file", lines.size());
-                }
-                
-                // Get the signature Bytes from the file
-                byte[] signatureBytes = Base64.getDecoder().decode(lines.get(0).trim());
-
-                try{
-                    // Proceeds to verify
-                    verifyElement(elementBytes, signatureBytes);
-                    
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
+                searchSignatureAndVerify(elementBytes, elementID);
             }
         }catch (java.security.GeneralSecurityException e){
             System.out.println("Error protecting with DS");

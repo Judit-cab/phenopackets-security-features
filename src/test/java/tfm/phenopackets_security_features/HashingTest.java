@@ -59,6 +59,16 @@ public class HashingTest {
 
     }
 
+    @Test
+    void testingCheckHashFunction(){
+        String hash1 = "212152121";
+        String hash2 = "111111111";
+
+        boolean result = Hashing.checkHash(hash1, hash2);
+
+        System.out.println(result);
+    }
+
 
 }
     
