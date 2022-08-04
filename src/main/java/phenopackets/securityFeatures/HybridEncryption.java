@@ -8,20 +8,29 @@ import com.google.crypto.tink.JsonKeysetWriter;
 import com.google.crypto.tink.KeyTemplates;
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.hybrid.HybridConfig;
+import com.nimbusds.jose.shaded.json.JSONObject;
+import com.nimbusds.jose.shaded.json.parser.ParseException;
+import com.google.gson.stream.JsonReader;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.GeneralSecurityException;
+import java.util.Base64;
 import java.util.List;
 
 public class HybridEncryption {
     private static final String SK_FILE = "sk_hybridEnc.json"; 
     private static final String PK_FILE = "pk_hybridEnc.json"; 
     private static final String ALGORITHM = "ECIES_P256_HKDF_HMAC_SHA256_AES128_GCM";
-    
+    private static final String FILE_FORMAT =".json";
+
     static ExternalResources externalResource = new ExternalResources();
+    static JSONObject jsonObj = new JSONObject();
 
     /**
      * Method to create the assymetric keyset : private and public key
@@ -138,6 +147,45 @@ public class HybridEncryption {
             res = hybridDecryption(element, context);
             return res;
         } 
+    }
+
+    public static void saveInFile(byte[] elementBytes,String elementName, String fileName) throws URISyntaxException, ParseException{
+    
+        String ptBytes = new String(Base64.getEncoder().encode(elementBytes), StandardCharsets.UTF_8);
+        
+        externalResource.createJSONFile(fileName, ptBytes, elementName);
+
+    }
+
+    public static byte[] getCipherBytes(String elementName, String fileName) throws URISyntaxException, IOException, GeneralSecurityException{
+        
+        byte[] elementBytes = null;
+        // Get the file with the signature
+        File signaturesFile = externalResource.getFileFromResource(fileName+FILE_FORMAT);
+        
+        try (FileReader reader = new FileReader(signaturesFile)){
+            JsonReader js =  new JsonReader(reader);
+            js.beginObject();
+            
+            // Search for a specific item by its ID 
+            while (js.hasNext()) {
+                String field = js.nextName();
+                
+                if (field.equals(elementName)) {
+                    String ptBytes = js.nextString();
+                    // Get the element Bytes from the file
+                    elementBytes = Base64.getDecoder().decode(ptBytes);
+                }else {
+                    js.skipValue();
+                }
+            }
+            js.endObject();
+            js.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        
+        return elementBytes;
     }
     
 }

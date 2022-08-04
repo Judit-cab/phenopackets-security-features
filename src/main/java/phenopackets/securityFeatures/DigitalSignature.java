@@ -18,18 +18,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.util.Base64;
-import java.util.List;
 
 
 public class DigitalSignature {
 
     private static final String PK_FILE = "pk_verify.json"; 
     private static final String SK_FILE = "pk_sign.json"; 
-    private static final String SIGNATURE_FILE = "signature.txt";
-    private static final String SIGNATURES_FILE = "signatureList.json";
+    private static final String SIGNATURES_FILE = "signatures";
     public static JSONObject jsonObj = new JSONObject();
     public static JSONParser jsonParser;
     static ExternalResources resourceFile = new ExternalResources();
@@ -118,9 +115,7 @@ public class DigitalSignature {
                 byte[] signatureBytes = signElement(elementBytes);
                 // Store the signature in a jsonObj and create a file with the signature
                 String ptSignature = new String(Base64.getEncoder().encode(signatureBytes), StandardCharsets.UTF_8);
-                jsonObj.appendField(elementID, ptSignature);
-                resourceFile.createSignFile(SIGNATURE_FILE, ptSignature);
-                resourceFile.addContentToJsonFile(SIGNATURES_FILE, jsonObj);
+                resourceFile.createJSONFile(SIGNATURES_FILE, ptSignature, elementID);
 
             }else if(mode.equals("verify")){
                 searchSignatureAndVerify(elementBytes, elementID);
