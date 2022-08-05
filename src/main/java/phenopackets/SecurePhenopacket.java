@@ -2,6 +2,7 @@ package phenopackets;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,6 +15,7 @@ import org.phenopackets.secure.schema.core.PhenotypicFeature;
 import com.nimbusds.jose.shaded.json.parser.ParseException;
 
 import phenopackets.securityFeatures.DigitalSignature;
+import phenopackets.securityFeatures.HybridEncryption;
 
 import org.phenopackets.secure.schema.Phenopacket;
 
@@ -40,7 +42,7 @@ public class SecurePhenopacket {
      * @return New Phenopacket
      */
     public static Phenopacket createPhenopacket (String id, Individual subject, List<PhenotypicFeature> phenotypicFeatures, MetaData metaData, List<Disease> diseases, List<MedicalAction> medicalActions){
-        
+
         return Phenopacket.newBuilder()
             .setId(id)
             .setSubject(subject)
@@ -49,6 +51,29 @@ public class SecurePhenopacket {
             .addAllDiseases(diseases)
             .addAllMedicalActions(medicalActions)
             .build();
+    }
+    
+    public static Phenopacket createPhenopacketToHybrydEncryption(String id, Individual subject, MetaData metaData){
+
+        return Phenopacket.newBuilder()
+            .setId(id)
+            .setSubject(subject)
+            .setMetaData(metaData)
+            .build();
+    }
+
+
+    public static void protectMetaData(Phenopacket phenopacket) throws URISyntaxException, IOException, GeneralSecurityException, ParseException{
+        MetaData metaData = phenopacket.getMetaData();
+        String phenopacketID = phenopacket.getId();
+        
+        phenopacket = Phenopacket.newBuilder().clearMetaData().build();
+
+        byte[] cipherMetadata = MainElements.protectedMetaData(metaData, phenopacketID.getBytes());
+        byte[] phenopacketBytes = phenopacket.toByteArray();
+
+        HybridEncryption.saveInFile(cipherMetadata, "Metadata", phenopacketID);
+        HybridEncryption.saveInFile(phenopacketBytes, "Phenopacket", phenopacketID);
     }
 
     /**
@@ -64,10 +89,10 @@ public class SecurePhenopacket {
         byte[] phenopacketBytes = phenopacket.toByteArray();
         
         // Get the id as identifier 
-        String id = phenopacket.getId();
+        String phenopacketID = phenopacket.getId();
 
         // Sign the element
-        DigitalSignature.protectWithDS("sign", phenopacketBytes, id);
+        DigitalSignature.protectWithDS("sign", phenopacketBytes, phenopacketID);
 
     }
 
@@ -85,10 +110,10 @@ public class SecurePhenopacket {
         byte[] phenopacketBytes = phenopacket.toByteArray();
         
         // Get the id as identifier 
-        String id = phenopacket.getId();
+        String phenopacketID = phenopacket.getId();
 
         // Verify the element
-        DigitalSignature.protectWithDS("verify", phenopacketBytes, id);
+        DigitalSignature.protectWithDS("verify", phenopacketBytes, phenopacketID);
     }
     
 }

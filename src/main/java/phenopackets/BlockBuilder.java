@@ -9,6 +9,9 @@ import phenopackets.securityFeatures.HybridEncryption;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.Base64;
 import java.util.List;
 
@@ -112,18 +115,31 @@ public class BlockBuilder {
     }
 
     /**
+     * Method to create a new Timestamp
+     * @param isoDate required 
+     * @return a timestamp element
+     */
+    public static Timestamp createTimestamp(String isoDate){
+        TemporalAccessor date = DateTimeFormatter.ISO_DATE_TIME.parse(isoDate);
+        
+        Instant instant = Instant.from(date);
+
+        // Create timestamp element
+        return Timestamp.newBuilder()
+            .setSeconds(instant.getEpochSecond())
+            .setNanos(instant.getNano())
+            .build();
+    }
+
+    /**
      * Method to create a new TimeELement that includes a Timestamp element
      * @param isoDate required
      * @return Time Element
      */
     public static TimeElement creaTimeElementTimestamp(String isoDate){
-        
-        //Change type String to Long 
-        long time = Long.parseLong(isoDate);
-        
-        // Create timestamp element
-        Timestamp timestamp = Timestamp.newBuilder().setSeconds(time).build();
 
+        // Create timestamp element
+        Timestamp timestamp = createTimestamp(isoDate);
         // Create and return TimeELement
         return TimeElement.newBuilder().setTimestamp(timestamp).build();
 
@@ -136,14 +152,10 @@ public class BlockBuilder {
      * @return
      */
     public static TimeInterval createTimeInterval(String isoDateStart, String isoDateEnd){
-        
-        //Change type String to Long 
-        long timeStart = Long.parseLong(isoDateStart);
-        long timeEnd = Long.parseLong(isoDateEnd);
-        
+
         // Create timestamp element
-        Timestamp timestampStart = Timestamp.newBuilder().setSeconds(timeStart).build();
-        Timestamp timestampEnd = Timestamp.newBuilder().setSeconds(timeEnd).build();
+        Timestamp timestampStart = createTimestamp(isoDateStart);
+        Timestamp timestampEnd = createTimestamp(isoDateEnd);
         
          // Create and return TimeInterval
         return TimeInterval.newBuilder()
