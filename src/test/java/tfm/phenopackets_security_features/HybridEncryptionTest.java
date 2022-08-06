@@ -115,14 +115,14 @@ public class HybridEncryptionTest {
     Phenopacket createPhenopacketProtectingCreator() throws IOException, GeneralSecurityException, URISyntaxException{
         
         // Create an arbitrary identifier
-        String phenopacketID = SecurePhenopacket.generatePhenopacketId();
+        String phenopacketId = SecurePhenopacket.generatePhenopacketId();
         // Create the subject
         Individual subject = covidCase.createCovidSubject();
         // Create the metadata element
         MetaData metaData = covidCase.createCovidMetaData();
 
         // Create and return a secure phenopacket
-        return SecurePhenopacket.createPhenopacketToHybrydEncryption(phenopacketID, subject, metaData); 
+        return SecurePhenopacket.createPhenopacketToHybrydEncryption(phenopacketId, subject, metaData); 
     }
 
     /*
@@ -133,10 +133,10 @@ public class HybridEncryptionTest {
     void checkAgeDecryption() throws IOException, GeneralSecurityException, URISyntaxException { 
         
         Phenopacket phenopacket = createPhenopacket();
-        String phenopacketID = phenopacket.getId();
+        String phenopacketId = phenopacket.getId();
     
         TimeElement age = phenopacket.getSubject().getTimeAtLastEncounter();
-        String plainAge = BlockBuilder.getAge(age, phenopacketID.getBytes());
+        String plainAge = BlockBuilder.getAge(age, phenopacketId.getBytes());
         
         System.out.println("After decryption it gets the same age value:" + plainAge);
         
@@ -150,13 +150,13 @@ public class HybridEncryptionTest {
     void checkMetaDataEncyption() throws IOException, GeneralSecurityException, URISyntaxException{
         
         Phenopacket phenopacket = createPhenopacket();
-        String phenopacketID = phenopacket.getId();
+        String phenopacketId = phenopacket.getId();
 
         MetaData metaData = phenopacket.getMetaData();
         
-        byte[] cipherMetadata = MainElements.protectedMetaData(metaData, phenopacketID.getBytes());
+        byte[] cipherMetadata = MainElements.protectedMetaData(metaData, phenopacketId.getBytes());
         
-        MetaData plainMetaData = MainElements.getMetaData(cipherMetadata, phenopacketID.getBytes());
+        MetaData plainMetaData = MainElements.getMetaData(cipherMetadata, phenopacketId.getBytes());
         
         System.out.println("After decryption it gets the same metadata value:");
         System.out.println(plainMetaData);
@@ -172,7 +172,7 @@ public class HybridEncryptionTest {
         // Create phenopacket
         Phenopacket phenopacket = createPhenopacket();
         // Get the arbitrary id
-        String phenopacketID = phenopacket.getId();
+        String phenopacketId = phenopacket.getId();
         // Get the stored metadata
         MetaData metaData = phenopacket.getMetaData();
         // Get the createdBy value
@@ -181,7 +181,7 @@ public class HybridEncryptionTest {
         System.out.println("Stored age in phenopacket as:" + createdBy);
 
         // Function to decrypt the field
-        String plaintext = MainElements.getMetaDataCreator(metaData, phenopacketID);
+        String plaintext = MainElements.getMetaDataCreator(metaData, phenopacketId);
 
         System.out.println("After decryption the original createdBy value is" + plaintext);
         
@@ -195,10 +195,10 @@ public class HybridEncryptionTest {
     @Test
     void savePhenopacket() throws IOException, GeneralSecurityException, URISyntaxException, ParseException{
         Phenopacket phenopacket = createPhenopacket();
-        String phenopacketID = phenopacket.getId();
+        String phenopacketId = phenopacket.getId();
 
         byte[] phenopacketBytes = phenopacket.toByteArray();
-        HybridEncryption.saveInFile(phenopacketBytes, "Phenopacket", phenopacketID);
+        HybridEncryption.saveInFile(phenopacketBytes, "Phenopacket", phenopacketId);
     }
 
     /*
@@ -218,8 +218,8 @@ public class HybridEncryptionTest {
      */
     @Test
     void getAndCheckAgeFromFile() throws URISyntaxException, IOException, GeneralSecurityException{
-        String phenopacketID = "17a1a6ad-2ea1-40ee-9308-1401fa096c0c";
-        byte[] phenopacketBytes = HybridEncryption.getCipherBytes("Phenopacket", phenopacketID);
+        String phenopacketId = "17a1a6ad-2ea1-40ee-9308-1401fa096c0c";
+        byte[] phenopacketBytes = HybridEncryption.getCipherBytes("Phenopacket", phenopacketId);
 
         Phenopacket phenopacket = Phenopacket.parseFrom(phenopacketBytes);
 
@@ -228,7 +228,7 @@ public class HybridEncryptionTest {
         System.out.println("Stored age in phenopacket as:");
         System.out.println(age);
 
-        String plainAge = BlockBuilder.getAge(age, phenopacketID.getBytes());
+        String plainAge = BlockBuilder.getAge(age, phenopacketId.getBytes());
         
         System.out.println("After decryption it gets the same age value:" + plainAge);
     }
@@ -239,11 +239,11 @@ public class HybridEncryptionTest {
      */
     @Test
     void getMetadataFromFile() throws URISyntaxException, IOException, GeneralSecurityException{
-        String phenopacketID = "17a1a6ad-2ea1-40ee-9308-1401fa096c0c";
+        String phenopacketId = "17a1a6ad-2ea1-40ee-9308-1401fa096c0c";
 
-        byte[] cipherMetadata = HybridEncryption.getCipherBytes("metaData", phenopacketID);
+        byte[] cipherMetadata = HybridEncryption.getCipherBytes("metaData", phenopacketId);
 
-        MetaData plainMetaData = MainElements.getMetaData(cipherMetadata, phenopacketID.getBytes());
+        MetaData plainMetaData = MainElements.getMetaData(cipherMetadata, phenopacketId.getBytes());
         
         System.out.println(plainMetaData);
     }
@@ -254,13 +254,13 @@ public class HybridEncryptionTest {
      */
     @Test
     void getAndCheckCreatorFromFile() throws URISyntaxException, IOException, GeneralSecurityException{
-        String phenopacketID = "17a1a6ad-2ea1-40ee-9308-1401fa096c0c";
-        byte[] phenopacketBytes = HybridEncryption.getCipherBytes("Phenopacket", phenopacketID);
+        String phenopacketId = "17a1a6ad-2ea1-40ee-9308-1401fa096c0c";
+        byte[] phenopacketBytes = HybridEncryption.getCipherBytes("Phenopacket", phenopacketId);
 
         Phenopacket phenopacket = Phenopacket.parseFrom(phenopacketBytes);
 
         MetaData metaData = phenopacket.getMetaData();
-        String createdBy = MainElements.getMetaDataCreator(metaData, phenopacketID);
+        String createdBy = MainElements.getMetaDataCreator(metaData, phenopacketId);
         
         System.out.println("After decryption it gets the same age value:" + createdBy);
     }

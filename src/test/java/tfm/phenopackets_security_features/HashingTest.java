@@ -1,74 +1,111 @@
 package tfm.phenopackets_security_features;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.phenopackets.secure.schema.Phenopacket;
 import org.phenopackets.secure.schema.core.Disease;
-import org.phenopackets.secure.schema.core.Evidence;
-import org.phenopackets.secure.schema.core.OntologyClass;
+import org.phenopackets.secure.schema.core.MedicalAction;
 import org.phenopackets.secure.schema.core.PhenotypicFeature;
-import org.phenopackets.secure.schema.core.TimeElement;
 
-import phenopackets.BlockBuilder;
-import phenopackets.MainElements;
+import phenopackets.Examples.Covid19;
+import phenopackets.Examples.Oncology;
 import phenopackets.securityFeatures.Hashing;
-
-
 
 
 public class HashingTest {
 
+    Oncology oncologyCase = new Oncology();
+
     @Test
-    void checkPhenotypicElement() throws IOException, GeneralSecurityException, URISyntaxException{
-        String phenopacketId = "123654";
+    void checkPhenotypicElementHashFunction() throws IOException, GeneralSecurityException, URISyntaxException{
+        Phenopacket phenopacket = oncologyCase.createOntologyPhenopacket();
+        String phenopacketId = phenopacket.getId();
 
-        OntologyClass type = BlockBuilder.createOntologyClass("id", "label");
-        OntologyClass severity = BlockBuilder.createOntologyClass("id", "label");
-        List<Evidence> evidence =  new ArrayList<Evidence>();
-        TimeElement element = BlockBuilder.creaTimeElementTimestamp("1081157732");
+        List<PhenotypicFeature> phenotypicFeatures = phenopacket.getPhenotypicFeaturesList();
+        PhenotypicFeature phenotypicFeature1 = phenotypicFeatures.get(0);
+        String phenotypic1 = phenotypicFeature1.getType().getLabel();
         
-        PhenotypicFeature phenotypic = MainElements.createPhenotypicFeature(type, severity, evidence, element, element);
+        PhenotypicFeature phenotypicFeature2 = phenotypicFeatures.get(1);
+        String phenotypic2 = phenotypicFeature2.getType().getLabel();
 
-        String hash = Hashing.computePhenotypicFeatureHash(phenotypic, phenopacketId, "phenotypic3");
+        String hash1 = Hashing.computePhenotypicFeatureHash(phenotypicFeature1, phenopacketId, phenotypic1);
+        String hash2 = Hashing.computePhenotypicFeatureHash(phenotypicFeature2, phenopacketId, phenotypic2);
 
-        String hashFile = Hashing.getHash(phenopacketId, "phenotypic3");
+        String hash1File = Hashing.getHash(phenopacketId, phenotypic1);
+        String hash2File = Hashing.getHash(phenopacketId, phenotypic2);
+
+        Assertions.assertEquals(hash1, hash1File);
+        Assertions.assertEquals(hash2, hash2File);
+
+    }
+
+    @Test
+    void checkDiseaseElementHashFunction() throws IOException, GeneralSecurityException, URISyntaxException{
+        Phenopacket phenopacket = oncologyCase.createOntologyPhenopacket();
+        String phenopacketId = phenopacket.getId();
+
+        Disease disease = phenopacket.getDiseases(0);
+        String diseaseName = disease.getTerm().getLabel();
+        
+        String hash = Hashing.computeDiseaseHash(disease, phenopacketId, diseaseName);
+        String hashFile = Hashing.getHash(phenopacketId, diseaseName);
 
         Assertions.assertEquals(hash, hashFile);
+
     }
 
     @Test
-    void createDiseaseElementHash() throws IOException, GeneralSecurityException, URISyntaxException{
-        String phenopacketId = "123654";
+    void checkMedicalActionsHashFunction() throws IOException, GeneralSecurityException, URISyntaxException{
+        Covid19 covidCase = new Covid19();
+        Phenopacket phenopacket = covidCase.covid19Phenopacket();
+        String phenopacketId = phenopacket.getId();
 
-        OntologyClass type = BlockBuilder.createOntologyClass("id", "label");
-        TimeElement element = BlockBuilder.createTimeElementAge("isoAge".getBytes(), phenopacketId.getBytes());
-        List<OntologyClass> stages = new ArrayList<OntologyClass>();
-        Disease disease = MainElements.createDisease(type, true, stages, type, element);
+        List<MedicalAction> medicalActions = phenopacket.getMedicalActionsList();
         
-        String hash = Hashing.computeDiseaseHash(disease, phenopacketId, "Disease");
+        MedicalAction procedure = medicalActions.get(0);
+        String procedureName = procedure.getProcedure().getCode().getLabel();
+        
+        MedicalAction treatment = medicalActions.get(1);
+        String treatmentName = treatment.getTreatment().getAgent().getLabel();
+        
+        String hash1 = Hashing.computeMedicalAction(procedure, phenopacketId, procedureName);
+        String hash2 = Hashing.computeMedicalAction(treatment, phenopacketId, treatmentName);
+        
+        String hash1File = Hashing.getHash(phenopacketId, procedureName);
+        String hash2File = Hashing.getHash(phenopacketId, treatmentName);
 
-        String hashFile = Hashing.getHash(phenopacketId, "Disease");
-
-        Assertions.assertEquals(hash, hashFile);
+        Assertions.assertEquals(hash1, hash1File);
+        Assertions.assertEquals(hash2, hash2File);
 
     }
 
     @Test
-    void testingCheckHashFunction(){
-        String hash1 = "212152121";
-        String hash2 = "111111111";
+    void checkHashFunction() throws URISyntaxException, IOException{
+        String phenopacketID = "f9f2d029-e1e3-42a4-bb79-ee39652c8c07";
 
-        boolean result = Hashing.checkHash(hash1, hash2);
+        List<PhenotypicFeature> phenotypicFeatures = oncologyCase.createOntologyPhenotypicFeature();
 
-        System.out.println(result);
+        PhenotypicFeature phenotypicFeature1 = phenotypicFeatures.get(0);
+        String phenotypic1 = phenotypicFeature1.getType().getLabel();
+
+        PhenotypicFeature phenotypicFeature2 = phenotypicFeatures.get(1);
+        String phenotypic2 = phenotypicFeature2.getType().getLabel();
+        
+        String storedHash1 = Hashing.getHash(phenopacketID, phenotypic1);
+        String storedHash2 = Hashing.getHash(phenopacketID, phenotypic2);
+
+        boolean res1 = Hashing.checkHash(phenotypicFeature1.toByteArray(), storedHash1);
+        boolean res2 = Hashing.checkHash(phenotypicFeature2.toByteArray(), storedHash2);
+
+        assertTrue(res1);
+        assertTrue(res2);
     }
-
-
 }
     

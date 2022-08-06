@@ -23,12 +23,11 @@ import com.google.protobuf.Timestamp;
 
 import phenopackets.BlockBuilder;
 import phenopackets.MainElements;
-import phenopackets.SecurePhenopacket;
 
 public class Oncology {
 
     //PhenopacketID
-    private String phenopacketID = SecurePhenopacket.generatePhenopacketId();
+    private String phenopacketId = "f9f2d029-e1e3-42a4-bb79-ee39652c8c07";
 
     // Individual values
     public int karyorypicSex = 2;
@@ -49,7 +48,7 @@ public class Oncology {
     OntologyClass clinicalTnmFinding1 = BlockBuilder.createOntologyClass("NCIT:C48766", "pT2b Stage Finding");
     OntologyClass clinicalTnmFinding2 = BlockBuilder.createOntologyClass("NCIT:C48750", "pN2 Stage Finding");
     // Values not included in the example
-    OntologyClass primarySite = BlockBuilder.createOntologyClass("UBERON:0003403", "skin of forearm");
+    OntologyClass primarySite = BlockBuilder.createOntologyClass("UBERON:0001255", "urinary bladder");
    
     // MetaData values
     Timestamp created = BlockBuilder.createTimestamp("2021-05-11T15:07:16.662Z");
@@ -62,7 +61,7 @@ public class Oncology {
 
     public Individual createOntologyIndividual() throws IOException, GeneralSecurityException, URISyntaxException{
         // Create the age block
-        TimeElement age = BlockBuilder.createTimeElementAge(isoAge.getBytes(), phenopacketID.getBytes());
+        TimeElement age = BlockBuilder.createTimeElementAge(isoAge.getBytes(), phenopacketId.getBytes());
         // Assign vital status
         VitalStatus vitalStatus = VitalStatus.newBuilder().setStatus(Status.ALIVE).build();
         // Create indivual element
@@ -97,7 +96,7 @@ public class Oncology {
         diseaseStages.add(diseaseStage);
         tnmFindings.add(clinicalTnmFinding1);
         tnmFindings.add(clinicalTnmFinding2);
-        TimeElement onset = BlockBuilder.createTimeElementAge(isoAge.getBytes(), phenopacketID.getBytes());
+        TimeElement onset = BlockBuilder.createTimeElementAge(isoAge.getBytes(), phenopacketId.getBytes());
         Disease disease = MainElements.createOncologicaldisease(term, false, diseaseStages, tnmFindings, primarySite, onset);
 
         diseases.add(disease);
@@ -119,14 +118,12 @@ public class Oncology {
         //Create the metadata element
         MetaData metaData = MainElements.createMetaData(created, createdBy, submittedBy, resources, updates, phenopacketSchemaVersion);
         
-        System.out.println(metaData);
-        
         return metaData;
     }
 
     public Phenopacket createOntologyPhenopacket() throws IOException, GeneralSecurityException, URISyntaxException{
         return Phenopacket.newBuilder()
-            .setId(phenopacketID)
+            .setId(phenopacketId)
             .setSubject(createOntologyIndividual())
             .addAllPhenotypicFeatures(createOntologyPhenotypicFeature())
             .addAllDiseases(createOntologyDisease())

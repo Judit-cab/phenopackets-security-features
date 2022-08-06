@@ -33,7 +33,7 @@ import phenopackets.SecurePhenopacket;
 public class Covid19 {
 
   //PhenopacketID
-  private String phenopacketID = SecurePhenopacket.generatePhenopacketId();
+  private String phenopacketId = SecurePhenopacket.generatePhenopacketId();
 
   // Individual Values
   public String isoAge = "P70Y";
@@ -46,7 +46,7 @@ public class Covid19 {
   public TimeElement resolution = BlockBuilder.creaTimeElementTimestamp("2020-03-20T00:00:00Z");
   // Values not included in the example 
   public OntologyClass severity = BlockBuilder.createOntologyClass("HP:0012828","Severe");
-  Evidence evidence = BlockBuilder.createEvidence("ECO:0006017", "author statement from published clinical study used in manual assertion");
+  public Evidence evidence = BlockBuilder.createEvidence("ECO:0006017", "author statement from published clinical study used in manual assertion");
 
   //MedicalActions values
   public OntologyClass code = BlockBuilder.createOntologyClass("NCIT:C80473","Left Ventricular Assist Device");
@@ -54,14 +54,11 @@ public class Covid19 {
   public OntologyClass agent = BlockBuilder.createOntologyClass("NCIT:C722", "Oxygen");
   public OntologyClass routeOfAdministration = BlockBuilder.createOntologyClass("NCIT:C38284", "Nasal Route of Administration");
   public OntologyClass unit = BlockBuilder.createOntologyClass("NCIT:C67388", "Liter per Minute");
-
   public double value = 2.0;
-  public String intervalStart = "2020-03-20T00:00:00Z";
-  public String intervalEnd = "2020-03-22T00:00:00Z";
-
+  public TimeInterval interval = BlockBuilder.createTimeInterval("2020-03-20T00:00:00Z", "2020-03-22T00:00:00Z");
   //Values not included in the example
-  public OntologyClass bodySite = BlockBuilder.createOntologyClass("UBERON:0003403", "skin of forearm");
-  public OntologyClass schedule = BlockBuilder.createOntologyClass("NCIT:C64496","Twice Daily");
+  public OntologyClass bodySite = BlockBuilder.createOntologyClass("UBERON:0000948", "heart");
+  public OntologyClass schedule = BlockBuilder.createOntologyClass("NCIT:C64597","Immediately");
   
   // Disease values
   OntologyClass term1 = BlockBuilder.createOntologyClass("NCIT:C2985", "Diabetes Mellitus");
@@ -69,7 +66,7 @@ public class Covid19 {
   Boolean excluded = true;
 
   // Values not included in the example
-  OntologyClass primarySite = BlockBuilder.createOntologyClass("UBERON:0003403", "skin of forearm");
+  OntologyClass primarySite = BlockBuilder.createOntologyClass("UBERON:0000948", "heart");
   OntologyClass diseaseStage = BlockBuilder.createOntologyClass("NCIT:C27971", "Stage IV");
 
   // MetaData values
@@ -80,15 +77,15 @@ public class Covid19 {
   public String version = "http://purl.obolibrary.org/obo/ncit/releases/2019-11-26/ncit.owl";
   public String namespacePrefix = "NCIT";
   //Values not included in the example
-  public String created = "2021-05-11T15:07:16.662Z";
-  public String createdBy = "Peter R.";
-  public String submittedBy = "Peter R.";
+  public String created = "2022-08-08T00:27:16.662Z";
+  public String createdBy = "Judit C.";
+  public String submittedBy = "Judit C.";
   
 
   public TimeElement createAge() throws IOException, GeneralSecurityException, URISyntaxException{
     
     //Create the Age block with hybrid encryption
-    TimeElement age = BlockBuilder.createTimeElementAge(isoAge.getBytes(), phenopacketID.getBytes());
+    TimeElement age = BlockBuilder.createTimeElementAge(isoAge.getBytes(), phenopacketId.getBytes());
 
     System.out.println("The value of the encrypted age is:");
     System.out.println(age);
@@ -127,8 +124,6 @@ public class Covid19 {
     List<MedicalAction> medicalActions = new ArrayList<MedicalAction>();
     List<DoseInterval> doseIntervals = new ArrayList<DoseInterval>();
     
-    TimeInterval interval = BlockBuilder.createTimeInterval(intervalStart, intervalEnd);
-
     DoseInterval doseInterval = BlockBuilder.setDoseInterval(BlockBuilder.setQuantity(unit, value), schedule, interval);
     doseIntervals.add(doseInterval);
     
@@ -150,7 +145,7 @@ public class Covid19 {
     List<OntologyClass> diseaseStages = new ArrayList<OntologyClass>();
     
     diseaseStages.add(diseaseStage);
-    TimeElement onset = BlockBuilder.createTimeElementAge(isoAge.getBytes(), phenopacketID.getBytes());
+    TimeElement onset = BlockBuilder.createTimeElementAge(isoAge.getBytes(), phenopacketId.getBytes());
     Disease disease1 = MainElements.createDisease(term1, excluded, diseaseStages, primarySite, onset);
     Disease disease2 = MainElements.createDisease(term2, false, diseaseStages, primarySite, onset);
     
@@ -178,7 +173,7 @@ public class Covid19 {
   }
 
   public Phenopacket covid19Phenopacket() throws IOException, GeneralSecurityException, URISyntaxException{
-    return SecurePhenopacket.createPhenopacket(id, createCovidSubject(), createCovidPhenotypicFeatures(), createCovidMetaData(), createCovidDisease(), createCovidMedicalActions());
+    return SecurePhenopacket.createPhenopacket(phenopacketId, createCovidSubject(), createCovidPhenotypicFeatures(), createCovidMetaData(), createCovidDisease(), createCovidMedicalActions());
   }
   
 }

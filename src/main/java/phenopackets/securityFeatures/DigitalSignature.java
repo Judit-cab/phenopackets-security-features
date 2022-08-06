@@ -6,11 +6,11 @@ import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.PublicKeySign;
 import com.google.crypto.tink.PublicKeyVerify;
 import com.google.crypto.tink.signature.SignatureConfig;
-import com.google.gson.stream.JsonReader;
-import com.nimbusds.jose.shaded.json.JSONObject;
-import com.nimbusds.jose.shaded.json.parser.JSONParser;
-import com.nimbusds.jose.shaded.json.parser.ParseException;
 
+
+import com.nimbusds.jose.shaded.json.JSONObject;
+import com.nimbusds.jose.shaded.json.parser.ParseException;
+import com.google.gson.stream.JsonReader;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,9 +27,10 @@ public class DigitalSignature {
     private static final String PK_FILE = "pk_verify.json"; 
     private static final String SK_FILE = "pk_sign.json"; 
     private static final String SIGNATURES_FILE = "signatures";
+    private static final String FILE_FORMAT = ".json";
+  
+    static ExternalResources externalResource = new ExternalResources();
     public static JSONObject jsonObj = new JSONObject();
-    public static JSONParser jsonParser;
-    static ExternalResources resourceFile = new ExternalResources();
 
 
     /**
@@ -43,7 +44,7 @@ public class DigitalSignature {
     private static byte[] signElement(byte[] element) throws GeneralSecurityException, IOException, URISyntaxException{
         
         // Read and store the private key to sign
-        KeysetHandle handle = CleartextKeysetHandle.read(JsonKeysetReader.withFile(resourceFile.getFileFromResource(SK_FILE)));
+        KeysetHandle handle = CleartextKeysetHandle.read(JsonKeysetReader.withFile(externalResource.getFileFromResource(SK_FILE)));
         
         // Create the signer instance and get the associated primitive
         PublicKeySign signer = null;
@@ -52,7 +53,6 @@ public class DigitalSignature {
             signer = handle.getPrimitive(PublicKeySign.class);
         }catch(GeneralSecurityException ex){
             System.err.println("Process error: " + ex);
-            System.exit(1);
         }
 
         // Sign and return the signature bytes 
@@ -68,10 +68,12 @@ public class DigitalSignature {
      * @throws IOException
      * @throws URISyntaxException
      */
-    private static void verifyElement(byte[] element, byte[]signature) throws GeneralSecurityException, IOException, URISyntaxException{
+    private static Boolean verifyElement(byte[] element, byte[]signature) throws GeneralSecurityException, IOException, URISyntaxException{
 
+        //Set variable 
+        Boolean isVerified = false; 
         // Read and store the public key to verify
-        KeysetHandle handle = CleartextKeysetHandle.read(JsonKeysetReader.withFile(resourceFile.getFileFromResource(PK_FILE)));
+        KeysetHandle handle = CleartextKeysetHandle.read(JsonKeysetReader.withFile(externalResource.getFileFromResource(PK_FILE)));
 
          // Create the verifier instance and get the associated primitive
         PublicKeyVerify verifier = null;
@@ -85,10 +87,11 @@ public class DigitalSignature {
         // Check if the signature is correct
         try{
             verifier.verify(signature, element);
-            System.out.println("Verified!");
+            isVerified = true;
         }catch (GeneralSecurityException ex) {
-            System.err.println("Verification failed.");
+            System.err.println("Verification failed." + ex);
         }
+        return isVerified;
     }
     
     /**
@@ -102,6 +105,8 @@ public class DigitalSignature {
      */
     public static void protectWithDS(String mode, byte[] elementBytes, String elementID) throws IOException, URISyntaxException, ParseException{
         
+        //Set variable 
+        Boolean isVerified = false; 
         try {
             // Set the Digital Signature configuration 
             SignatureConfig.register();
@@ -113,12 +118,17 @@ public class DigitalSignature {
             
             if(mode.equals("sign")){
                 byte[] signatureBytes = signElement(elementBytes);
+                
                 // Store the signature in a jsonObj and create a file with the signature
                 String ptSignature = new String(Base64.getEncoder().encode(signatureBytes), StandardCharsets.UTF_8);
-                resourceFile.createJSONFile(SIGNATURES_FILE, ptSignature, elementID);
+                String ptPhenopacket = new String(Base64.getEncoder().encode(elementBytes), StandardCharsets.UTF_8);
+                externalResource.createJSONFile(SIGNATURES_FILE, ptPhenopacket, elementID);
+                externalResource.createJSONFile(SIGNATURES_FILE, ptSignature, elementID+"-Signature");
+                
 
             }else if(mode.equals("verify")){
-                searchSignatureAndVerify(elementBytes, elementID);
+                isVerified = searchSignatureAndVerify(elementBytes, elementID);
+                System.out.println("Verified:" + isVerified);
             }
         }catch (java.security.GeneralSecurityException e){
             System.out.println("Error protecting with DS");
@@ -133,10 +143,16 @@ public class DigitalSignature {
      * @throws IOException
      * @throws GeneralSecurityException
      */
-    public static void searchSignatureAndVerify(byte[] elementBytes, String elementID) throws URISyntaxException, IOException, GeneralSecurityException{
+    public static Boolean searchSignatureAndVerify(byte[] elementBytes, String elementID) throws URISyntaxException, IOException, GeneralSecurityException{
         
+        // Set variable
+        Boolean isVerified = false;
+
+        // Set the Digital Signature configuration 
+        SignatureConfig.register();
+
         // Get the file with the signature
-        File signaturesFile = resourceFile.getFileFromResource(SIGNATURES_FILE);
+        File signaturesFile = externalResource.getFileFromResource(SIGNATURES_FILE+FILE_FORMAT);
 
         try (FileReader reader = new FileReader(signaturesFile)){
             JsonReader js =  new JsonReader(reader);
@@ -145,12 +161,12 @@ public class DigitalSignature {
             while (js.hasNext()) {
                 String field = js.nextName();
                 
-                if (field.equals(elementID)) {
+                if (field.equals(elementID+"-Signature")) {
                     String ptSignature = js.nextString();
                     // Get the signature Bytes from the file
                     byte[] signatureBytes = Base64.getDecoder().decode(ptSignature);
                     // Proceeds to verify
-                    verifyElement(elementBytes, signatureBytes);
+                    isVerified = verifyElement(elementBytes, signatureBytes);
                 }else {
                     js.skipValue();
                 }
@@ -160,6 +176,8 @@ public class DigitalSignature {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+
+        return isVerified;
 
     }
 

@@ -3,6 +3,8 @@ package phenopackets.securityFeatures;
 import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.util.List;
 
 import com.google.crypto.tink.subtle.Hex;
 
@@ -75,12 +77,21 @@ public class ExternalResources {
             String path = getNewPath(fileName,FORMAT_JSON);
             File jsonFile = new File(path);
 
-            JSONObject js = getJSONFromFile(path);
-            
-            BufferedWriter fileWriter = new BufferedWriter(new FileWriter(jsonFile));
-            js.appendField(element, bytes);
-            fileWriter.write(js.toJSONString());
-            fileWriter.close();
+            List<String> lines = Files.readAllLines(jsonFile.toPath());
+
+            // Get the stored json Obj
+            if (lines.size()!=0) {
+                JSONObject js = getJSONFromFile(path);
+                BufferedWriter fileWriter = new BufferedWriter(new FileWriter(jsonFile));
+                js.appendField(element, bytes);
+                fileWriter.write(js.toJSONString());
+                fileWriter.close();
+            }else{
+                BufferedWriter fileWriter = new BufferedWriter(new FileWriter(jsonFile));
+                js.appendField(element, bytes);
+                fileWriter.write(js.toJSONString());
+                fileWriter.close();
+            }
 
         } catch (IOException e) {
             e.printStackTrace();

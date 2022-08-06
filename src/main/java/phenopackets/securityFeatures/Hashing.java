@@ -15,7 +15,7 @@ import org.phenopackets.secure.schema.core.PhenotypicFeature;
 
 public class Hashing {
 
-    static ExternalResources externalFile = new ExternalResources();
+    static ExternalResources externalResource = new ExternalResources();
     private static final String FORMAT_FILE =".txt";
 
     /**
@@ -36,18 +36,18 @@ public class Hashing {
     /**
      * Method to compute the hash of the Disease element
      * @param diseaseElement required - the Disease element
-     * @param phenopacketID required - Phenopacket ID
+     * @param phenopacketId required - Phenopacket ID
      * @param diseaseName required - the specific disease name
      * @return the hash 
      * @throws IOException
      * @throws URISyntaxException
      */
-    public static String computeDiseaseHash(Disease diseaseElement, String phenopacketID, String diseaseName) throws IOException, URISyntaxException{
+    public static String computeDiseaseHash(Disease diseaseElement, String phenopacketId, String diseaseName) throws IOException, URISyntaxException{
 
         byte[] diseaseBytes = diseaseElement.toByteArray();
         byte [] hash = computeHash(diseaseBytes);
 
-        externalFile.addHashToFile(phenopacketID, hash, diseaseName);
+        externalResource.addHashToFile(phenopacketId, hash, diseaseName);
 
 
         return new String(Hex.encode(hash));
@@ -57,18 +57,18 @@ public class Hashing {
     /**
      * Method to compute the hash of the Phenotypic Feature element
      * @param phenotypicFeature required - the Phenotypic Feature element
-     * @param phenopacketID required - Phenopacket ID
+     * @param phenopacketId required - Phenopacket ID
      * @param phenotypicName required - the specific phenotypic name
      * @return the hash String
      * @throws IOException
      * @throws URISyntaxException
      */
-    public static String computePhenotypicFeatureHash(PhenotypicFeature phenotypicFeature, String phenopacketID, String phenotypicName) throws IOException, URISyntaxException{
+    public static String computePhenotypicFeatureHash(PhenotypicFeature phenotypicFeature, String phenopacketId, String phenotypicName) throws IOException, URISyntaxException{
 
         byte[] phenotypicFeatureBytes = phenotypicFeature.toByteArray();
         byte [] hash = computeHash(phenotypicFeatureBytes);
 
-        externalFile.addHashToFile(phenopacketID, hash, phenotypicName);
+        externalResource.addHashToFile(phenopacketId, hash, phenotypicName);
 
         return new String(Hex.encode(hash));
         
@@ -77,18 +77,18 @@ public class Hashing {
     /**
      * Method to compute the hash of the Disease element
      * @param medicalAction required- a MedicalAction element
-     * @param phenopacketID required - Phenopacket ID
+     * @param phenopacketId required - Phenopacket ID
      * @param medicalActionName required - the specific medical action performed
      * @return the hash String
      * @throws IOException
      * @throws URISyntaxException
      */
-    public static String  computeMedicalAction(MedicalAction medicalAction, String phenopacketID, String medicalActionName) throws IOException, URISyntaxException{
+    public static String  computeMedicalAction(MedicalAction medicalAction, String phenopacketId, String medicalActionName) throws IOException, URISyntaxException{
 
         byte[] medicalActionBytes = medicalAction.toByteArray();
         byte [] hash = computeHash(medicalActionBytes);
 
-        externalFile.addHashToFile(phenopacketID, hash, medicalActionName);
+        externalResource.addHashToFile(phenopacketId, hash, medicalActionName);
 
         return new String(Hex.encode(hash));
         
@@ -105,7 +105,7 @@ public class Hashing {
     public static String getHash(String fileName, String element) throws URISyntaxException, IOException{
         String hash = null;
 
-        File hashFile = externalFile.getFileFromResource(fileName+FORMAT_FILE);
+        File hashFile = externalResource.getFileFromResource(fileName+FORMAT_FILE);
         List<String> lines=Files.readAllLines(hashFile.toPath());
 
         for (String line: lines){
@@ -126,11 +126,15 @@ public class Hashing {
      * @param storedHash required
      * @return boolean - if hashes are equal then returns true, otherwise returns false
      */
-    public static boolean checkHash(String computedHash, String storedHash){
+    public static boolean checkHash(byte[] element, String storedHash){
         
         boolean result = false;
         // Input parameter verification
-        if(!computedHash.isBlank() && !storedHash.isBlank()){
+        if(element!=null && !storedHash.isBlank()){
+            
+            byte [] hash = computeHash(element);
+            String computedHash = new String(Hex.encode(hash));
+
             // Compare both values
             result = computedHash.equals(storedHash);
             System.out.println(result);

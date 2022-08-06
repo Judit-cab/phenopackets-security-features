@@ -38,7 +38,6 @@ public class BlockBuilder {
             .build();
     }
 
-
     /**
      * Method to create a new Resource
      * @param id required 
@@ -66,8 +65,7 @@ public class BlockBuilder {
         
         return Evidence.newBuilder()
             .setEvidenceCode(evidenceCode)
-            .build();
-        
+            .build(); 
     }
 
     /**

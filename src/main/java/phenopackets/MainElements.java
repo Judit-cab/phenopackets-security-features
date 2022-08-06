@@ -276,19 +276,19 @@ public class MainElements {
      /**
      * Method to decrypt and get the creator of the phenopacket
      * @param metaData required - the metadata element with the encrypted creator
-     * @param phenopacketID required 
+     * @param phenopacketId required 
      * @return plain Created_by field
      * @throws IOException
      * @throws GeneralSecurityException
      * @throws URISyntaxException
      */
-    public static String getMetaDataCreator(MetaData metaData, String phenopacketID) throws IOException, GeneralSecurityException, URISyntaxException{
+    public static String getMetaDataCreator(MetaData metaData, String phenopacketId) throws IOException, GeneralSecurityException, URISyntaxException{
        
         // Get the created_by field bytes
         byte[] createdBytes = metaData.getCreatedBy().getBytes();
         
         // Decrypt the above bytes with the decryption method
-        byte[] plainCreatedBy = HybridEncryption.hybridEncryption(MODE_DEC, createdBytes, phenopacketID.getBytes());
+        byte[] plainCreatedBy = HybridEncryption.hybridEncryption(MODE_DEC, createdBytes, phenopacketId.getBytes());
         
         // return the Creator
         return new String(plainCreatedBy);
