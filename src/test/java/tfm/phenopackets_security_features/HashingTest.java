@@ -49,7 +49,7 @@ public class HashingTest {
         OntologyClass type = BlockBuilder.createOntologyClass("id", "label");
         TimeElement element = BlockBuilder.createTimeElementAge("isoAge".getBytes(), phenopacketId.getBytes());
         List<OntologyClass> stages = new ArrayList<OntologyClass>();
-        Disease disease = MainElements.createDisease(type, true, stages, stages, type, element);
+        Disease disease = MainElements.createDisease(type, true, stages, type, element);
         
         String hash = Hashing.computeDiseaseHash(disease, phenopacketId, "Disease");
 

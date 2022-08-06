@@ -61,6 +61,15 @@ public class BlockBuilder {
             .build();
     }
 
+    public static Evidence createEvidence(String codeId, String label){
+        OntologyClass evidenceCode = createOntologyClass(codeId, label); 
+        
+        return Evidence.newBuilder()
+            .setEvidenceCode(evidenceCode)
+            .build();
+        
+    }
+
     /**
      * Method to set new Quantity of items such as medications.
      * @param unit required

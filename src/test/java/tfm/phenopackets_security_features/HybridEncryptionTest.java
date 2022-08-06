@@ -1,134 +1,133 @@
 package tfm.phenopackets_security_features;
 
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.phenopackets.secure.schema.Phenopacket;
 import org.phenopackets.secure.schema.core.Individual;
 import org.phenopackets.secure.schema.core.MetaData;
-import org.phenopackets.secure.schema.core.Resource;
 import org.phenopackets.secure.schema.core.TimeElement;
-import org.phenopackets.secure.schema.core.Update;
-import org.phenopackets.secure.schema.core.VitalStatus;
-import org.phenopackets.secure.schema.core.VitalStatus.Status;
 
 import com.nimbusds.jose.shaded.json.parser.ParseException;
 
 import phenopackets.MainElements;
 import phenopackets.SecurePhenopacket;
+import phenopackets.Examples.Covid19;
 import phenopackets.securityFeatures.HybridEncryption;
 import phenopackets.BlockBuilder;
 
 public class HybridEncryptionTest {
 
+    Covid19 covidCase = new Covid19();
+    /*
+     * Method to test if an encrypted age block is created correctly
+     * The values used are extracted from COVID-19 example
+     */
     @Test
-    void checkHybridEncryption() throws IOException, GeneralSecurityException, URISyntaxException, ParseException{
-        String plaintText = "What we want to encrypt with hybrid encryption";
-        String context = "Test for encryption";
-        byte[] plainTextBytes = plaintText.getBytes();
-        byte[] contextBytes = context.getBytes(); 
+    void checkcreationAge() throws IOException, GeneralSecurityException, URISyntaxException{
 
-        byte[] cipher = HybridEncryption.hybridEncryption("encrypt", plainTextBytes, contextBytes);
+        //Create the Age block with hybrid encryption
+        TimeElement age = covidCase.createAge();
 
-        byte[] plainText = HybridEncryption.hybridEncryption("decrypt", cipher, contextBytes);
-
-        String result = new String(plainText);
-        
-        Assertions.assertEquals(plaintText, result);
-        HybridEncryption.saveInFile(cipher, "test4", "test1");
+        assertNotEquals(age, covidCase.isoAge);
     }
+
+    /*
+     * Methoc to check metadata can be created
+     * The values used are from ONCOLOGY example
+     */
 
     @Test 
-    MetaData createMetada() throws IOException, GeneralSecurityException, URISyntaxException{
-        
-        //ONCOLOGY EXAMPLE 
+    void checkcreationMetada() throws IOException, GeneralSecurityException, URISyntaxException{
 
-        List<Resource> resources =  new ArrayList<Resource>();
-        List<Update> updates = new ArrayList<Update>();
+        //MetaData
+        MetaData metaData = covidCase.createCovidMetaData();
         
-        TimeElement timeStamp = BlockBuilder.creaTimeElementTimestamp("2021-05-11T15:07:16.662Z");
-  
-        Resource resource1 = BlockBuilder.createResource("hp", "human phenotype ontology", "HP", "http://purl.obolibrary.org/obo/hp.owl", "2018-03-08", "http://purl.obolibrary.org/obo/HP_");
-        Resource resource2 = BlockBuilder.createResource("uberon", "uber anatomy ontology", "UBERON", "http://purl.obolibrary.org/obo/uberon.owl", "2019-03-08", "http://purl.obolibrary.org/obo/UBERON_");
-        resources.add(resource1);
-        resources.add(resource2);
-        
-        Update update = Update.newBuilder().setTimestamp(timeStamp.getTimestamp()).build();
-        updates.add(update);
-
-        MetaData metaDataTest = MainElements.createMetaData(timeStamp.getTimestamp(), "Peter R.", "Peter R.", resources, updates, "2.0");
-        
-        System.out.println(metaDataTest);
-        
-        return metaDataTest;
-
+        Assertions.assertEquals(metaData.getCreated(), covidCase.created);
+        Assertions.assertEquals(metaData.getCreatedBy(), covidCase.createdBy);
+        Assertions.assertEquals(metaData.getSubmittedBy(), covidCase.submittedBy);
+        Assertions.assertEquals(metaData.getPhenopacketSchemaVersion(), covidCase.phenopacketSchemaVersion);
     }
+
+    /*
+     * Methoc to check metadata can be created protecting its creator
+     * The values used are from ONCOLOGY example
+     */
 
     @Test 
-    MetaData createMetadaProtectingCreator() throws IOException, GeneralSecurityException, URISyntaxException{
-        
-        //ONCOLOGY EXAMPLE
-        String id = "17a1a6ad-2ea1-40ee-9308-1401fa096c0c"; 
+    void createMetadaProtectingCreator(String id) throws IOException, GeneralSecurityException, URISyntaxException{
 
-        List<Resource> resources =  new ArrayList<Resource>();
-        List<Update> updates = new ArrayList<Update>();
-        
-        TimeElement timeStamp = BlockBuilder.creaTimeElementTimestamp("2021-05-11T15:07:16.662Z");
-  
-        Resource resource1 = BlockBuilder.createResource("hp", "human phenotype ontology", "HP", "http://purl.obolibrary.org/obo/hp.owl", "2018-03-08", "http://purl.obolibrary.org/obo/HP_");
-        Resource resource2 = BlockBuilder.createResource("uberon", "uber anatomy ontology", "UBERON", "http://purl.obolibrary.org/obo/uberon.owl", "2019-03-08", "http://purl.obolibrary.org/obo/UBERON_");
-        resources.add(resource1);
-        resources.add(resource2);
-        
-        Update update = Update.newBuilder().setTimestamp(timeStamp.getTimestamp()).build();
-        updates.add(update);
+        //MetaData
+        MetaData metaData = covidCase.createCovidMetaData();
 
-        MetaData metaData = MainElements.protectedMetaDataCreator(timeStamp.getTimestamp(), "Peter R.", "Peter R.", resources, updates, "2.0", id.getBytes());
+        // This method provides the hybrid encryption
+        MetaData metaDataProtectingCreator = MainElements.protectedMetaDataCreator(metaData.getCreated(),metaData.getCreatedBy(), metaData.getSubmittedBy(), metaData.getResourcesList(), metaData.getUpdatesList(),metaData.getPhenopacketSchemaVersion(), id.getBytes());
         
-        System.out.println(metaData);
-        
-        return metaData;
+        assertNotEquals(metaData, metaDataProtectingCreator);
+       
     }
 
-    @Test
-    TimeElement createAge() throws IOException, GeneralSecurityException, URISyntaxException{
-        
-        // COVID-19 example
-        String isoAge = "P70Y";
-        String id = "17a1a6ad-2ea1-40ee-9308-1401fa096c0c";
+    /*
+     * Method to check an individual can be successfully created
+     */
 
-        TimeElement age = BlockBuilder.createTimeElementAge(isoAge.getBytes(), id.getBytes());
+    void checkcreationIndividual() throws IOException, GeneralSecurityException, URISyntaxException{
+    
+        Individual individual = covidCase.createCovidSubject();
 
-        System.out.println("The value of the encrypted age is:");
-        System.out.println(age);
-
-        return age;
-
+        Assertions.assertEquals(individual.getTimeAtLastEncounter(), covidCase.isoAge);
+        Assertions.assertEquals(individual.getKaryotypicSexValue(), covidCase.karyorypicSex);
     }
 
-    Individual createIndividual() throws IOException, GeneralSecurityException, URISyntaxException{
-        TimeElement age = createAge();
-        VitalStatus vitalStatus = VitalStatus.newBuilder().setStatus(Status.ALIVE).build();
-        Individual individual = MainElements.createSubject(age, vitalStatus, 4);
-
-        return individual;
-    }
+    /*
+     * Method to check if a phenopacket can be created
+     * In this case, metadata is no protected
+     */
 
     @Test
     Phenopacket createPhenopacket() throws IOException, GeneralSecurityException, URISyntaxException{
-        String id = SecurePhenopacket.generatePhenopacketId();
-        Individual subject = createIndividual();
-        MetaData metaData = createMetada();
+        
+        // Create an arbitrary identifier
+        String phenopacketID = SecurePhenopacket.generatePhenopacketId();
 
-        return SecurePhenopacket.createPhenopacketToHybrydEncryption(id, subject, metaData); 
+        
+        // Create the subject
+        Individual subject = covidCase.createCovidSubject();
+     
+        // Create the metadata element
+        MetaData metaData = covidCase.createCovidMetaData();
+
+        // Create and return a secure phenopacket
+        return SecurePhenopacket.createPhenopacketToHybrydEncryption(phenopacketID, subject, metaData); 
     }
 
+    /*
+     * Method to check if a phenopacket can be created
+     * In this case, the creator of the Phenopacket is protected
+     */
+
+    @Test
+    Phenopacket createPhenopacketProtectingCreator() throws IOException, GeneralSecurityException, URISyntaxException{
+        
+        // Create an arbitrary identifier
+        String phenopacketID = SecurePhenopacket.generatePhenopacketId();
+        // Create the subject
+        Individual subject = covidCase.createCovidSubject();
+        // Create the metadata element
+        MetaData metaData = covidCase.createCovidMetaData();
+
+        // Create and return a secure phenopacket
+        return SecurePhenopacket.createPhenopacketToHybrydEncryption(phenopacketID, subject, metaData); 
+    }
+
+    /*
+     * Method to check if the decryption works 
+     */
 
     @Test
     void checkAgeDecryption() throws IOException, GeneralSecurityException, URISyntaxException { 
@@ -140,9 +139,13 @@ public class HybridEncryptionTest {
         String plainAge = BlockBuilder.getAge(age, phenopacketID.getBytes());
         
         System.out.println("After decryption it gets the same age value:" + plainAge);
+        
+        Assertions.assertEquals(covidCase.isoAge, plainAge);
     }
 
-    
+    /*
+     * Method to check if the entire metadata is correctly encrypted and decrypted
+     */
     @Test
     void checkMetaDataEncyption() throws IOException, GeneralSecurityException, URISyntaxException{
         
@@ -161,33 +164,58 @@ public class HybridEncryptionTest {
         Assertions.assertEquals(metaData, plainMetaData);
     }
 
+    /*
+     * Method to check if the createdBy field a is correctly encrypted and decrypted
+     */
+    @Test
+    void checkMetaDataCreator() throws IOException, GeneralSecurityException, URISyntaxException{
+        // Create phenopacket
+        Phenopacket phenopacket = createPhenopacket();
+        // Get the arbitrary id
+        String phenopacketID = phenopacket.getId();
+        // Get the stored metadata
+        MetaData metaData = phenopacket.getMetaData();
+        // Get the createdBy value
+        String createdBy = metaData.getCreatedBy();
+
+        System.out.println("Stored age in phenopacket as:" + createdBy);
+
+        // Function to decrypt the field
+        String plaintext = MainElements.getMetaDataCreator(metaData, phenopacketID);
+
+        System.out.println("After decryption the original createdBy value is" + plaintext);
+        
+        Assertions.assertEquals(createdBy, plaintext);
+    }
+
+
+    /*
+     * Method to check if a Phenopacket is correctly saved in a File
+     */
     @Test
     void savePhenopacket() throws IOException, GeneralSecurityException, URISyntaxException, ParseException{
-        String phenopacketID = "17a1a6ad-2ea1-40ee-9308-1401fa096c0c";
         Phenopacket phenopacket = createPhenopacket();
+        String phenopacketID = phenopacket.getId();
 
         byte[] phenopacketBytes = phenopacket.toByteArray();
         HybridEncryption.saveInFile(phenopacketBytes, "Phenopacket", phenopacketID);
     }
 
+    /*
+     * Method to save both phenopacket and metadata
+     * This functionality works when a user want to encrypt the whole element
+     * Then, the Phenopacket and the encrypted metadata will be save into a file and send together
+     */
     @Test
     void saveMetaData() throws IOException, GeneralSecurityException, URISyntaxException, ParseException{
         Phenopacket phenopacket = createPhenopacket();
         SecurePhenopacket.protectMetaData(phenopacket);
-
     }
 
-    @Test
-    void getMetadataFromFile() throws URISyntaxException, IOException, GeneralSecurityException{
-        String phenopacketID = "17a1a6ad-2ea1-40ee-9308-1401fa096c0c";
-
-        byte[] cipherMetadata = HybridEncryption.getCipherBytes("metaData", phenopacketID);
-
-        MetaData plainMetaData = MainElements.getMetaData(cipherMetadata, phenopacketID.getBytes());
-        
-        System.out.println(plainMetaData);
-    }
-
+    /*
+     * Method to get the Age block from a phenopacket stored in a file
+     * Then, decryption will be performed in order to check if the process works well
+     */
     @Test
     void getAndCheckAgeFromFile() throws URISyntaxException, IOException, GeneralSecurityException{
         String phenopacketID = "17a1a6ad-2ea1-40ee-9308-1401fa096c0c";
@@ -205,21 +233,35 @@ public class HybridEncryptionTest {
         System.out.println("After decryption it gets the same age value:" + plainAge);
     }
 
-
+    /*
+     * Method to get the metadata element from a phenopacket stored in a file
+     * Then, decryption will be performed in order to check if the process works well
+     */
     @Test
-    void randomTest() throws IOException, GeneralSecurityException, URISyntaxException{
+    void getMetadataFromFile() throws URISyntaxException, IOException, GeneralSecurityException{
         String phenopacketID = "17a1a6ad-2ea1-40ee-9308-1401fa096c0c";
-        
-        //byte[] cipherMetadata = MainElements.protectedMetaData(metaData, phenopacketID.getBytes());
 
-        Phenopacket pheno = createPhenopacket();
-        MetaData metaData = pheno.getMetaData();
-        pheno = Phenopacket.newBuilder().clearMetaData().build();
-        Boolean res  = pheno.hasMetaData();
-        System.out.println(res);
+        byte[] cipherMetadata = HybridEncryption.getCipherBytes("metaData", phenopacketID);
+
+        MetaData plainMetaData = MainElements.getMetaData(cipherMetadata, phenopacketID.getBytes());
         
+        System.out.println(plainMetaData);
     }
 
+    /*
+     * Method to get the creator field from a phenopacket stored in a file
+     * Then, decryption will be performed in order to check if the process works well
+     */
+    @Test
+    void getAndCheckCreatorFromFile() throws URISyntaxException, IOException, GeneralSecurityException{
+        String phenopacketID = "17a1a6ad-2ea1-40ee-9308-1401fa096c0c";
+        byte[] phenopacketBytes = HybridEncryption.getCipherBytes("Phenopacket", phenopacketID);
 
+        Phenopacket phenopacket = Phenopacket.parseFrom(phenopacketBytes);
 
+        MetaData metaData = phenopacket.getMetaData();
+        String createdBy = MainElements.getMetaDataCreator(metaData, phenopacketID);
+        
+        System.out.println("After decryption it gets the same age value:" + createdBy);
+    }
 }
