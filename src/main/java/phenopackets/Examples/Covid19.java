@@ -33,7 +33,7 @@ import phenopackets.SecurePhenopacket;
 public class Covid19 {
 
   //PhenopacketID
-  private String phenopacketId = SecurePhenopacket.generatePhenopacketId();
+  private String phenopacketId = "17a1a6ad-2ea1-40ee-9308-1401fa096c0c";
 
   // Individual Values
   public String isoAge = "P70Y";
@@ -85,12 +85,8 @@ public class Covid19 {
   public TimeElement createAge() throws IOException, GeneralSecurityException, URISyntaxException{
     
     //Create the Age block with hybrid encryption
-    TimeElement age = BlockBuilder.createTimeElementAge(isoAge.getBytes(), phenopacketId.getBytes());
-
-    System.out.println("The value of the encrypted age is:");
-    System.out.println(age);
-
-    return age;
+    return BlockBuilder.createTimeElementAge(isoAge.getBytes(), phenopacketId.getBytes());
+  
   }
   
   public Individual createCovidSubject() throws IOException, GeneralSecurityException, URISyntaxException{

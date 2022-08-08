@@ -58,9 +58,10 @@ public class HybridEncryptionTest {
         TimeElement age = phenopacket.getSubject().getTimeAtLastEncounter();
         String plainAge = BlockBuilder.getAge(age, phenopacketId.getBytes());
         
-        System.out.println("After decryption it gets the same age value:" + plainAge);
+        System.out.println("After decryption, the same age value is obtained: " + plainAge);
         
-        Assertions.assertEquals(covidCase.isoAge, plainAge, "Expected value isoAge = P70Y");
+        Assertions.assertEquals(covidCase.isoAge, plainAge, 
+        "Expected value isoAge = P70Y");
     }
 
 
@@ -73,28 +74,28 @@ public class HybridEncryptionTest {
     @Test 
     void createMetadaProtectingCreator() throws IOException, GeneralSecurityException, URISyntaxException{
 
-        //Get phenopacket 
+        // Get Covid19 Phenopacket 
         Phenopacket phenopacket = covidCase.covid19Phenopacket();
         String phenopacketId = phenopacket.getId();
         
-        // Get metadata not encrypted
+        // Get non-encrypted MetaData
         MetaData metaData = phenopacket.getMetaData();
 
-        // This method provides the hybrid encryption
-        MetaData metaDataProtectingCreator = MainElements.protectedMetaDataCreator(metaData.getCreated(),metaData.getCreatedBy(), metaData.getSubmittedBy(), metaData.getResourcesList(), metaData.getUpdatesList(),metaData.getPhenopacketSchemaVersion(), phenopacketId.getBytes());
+        // This method provides hybrid encryption
+        MetaData metaDataProtectingCreator = MainElements.protectedMetaDataCreator(metaData.getCreated(), metaData.getCreatedBy(), metaData.getSubmittedBy(), metaData.getResourcesList(), metaData.getUpdatesList(), metaData.getPhenopacketSchemaVersion(), phenopacketId.getBytes());
         
         System.out.println("The value of the encrypted createdBy is:");
         System.out.println(metaDataProtectingCreator.getCreatedBy());
 
-        Assertions.assertNotEquals(metaData.getCreatedBy(), metaDataProtectingCreator.getCreatedBy(), "Both elements are the same");
+        Assertions.assertNotEquals(metaData.getCreatedBy(), metaDataProtectingCreator.getCreatedBy(), 
+        "Both elements are the same");
 
         // Function to decrypt the field
         String plaintext = MainElements.getMetaDataCreator(metaDataProtectingCreator, phenopacketId);
-
-        System.out.println("After decryption the original createdBy value is" + plaintext);
+        System.out.println("After decryption, the original createdBy value is obtained: " + plaintext);
         
-        Assertions.assertEquals(metaData.getCreatedBy(), plaintext, "Expected value: createdBy = Judit C.");
-
+        Assertions.assertEquals(metaData.getCreatedBy(), plaintext, 
+        "Expected value: createdBy = Judit C.");
     }
 
 
@@ -112,12 +113,12 @@ public class HybridEncryptionTest {
         
         byte[] cipherMetadata = MainElements.protectedMetaData(metaData, phenopacketId.getBytes());
 
-        // Check if the original and the cipher are not equals
+        // Check if the original and the encrypted metadata are not the same
         Assertions.assertNotEquals(metaData.toByteArray(), cipherMetadata, "Both elements are the same");
         
         MetaData plainMetaData = MainElements.getMetaData(cipherMetadata, phenopacketId.getBytes());
         
-        System.out.println("After decryption it gets the same metadata value:");
+        System.out.println("After decryption, the original MetaData element is obtained: ");
         System.out.println(plainMetaData);
         
         Assertions.assertEquals(metaData, plainMetaData);
@@ -134,19 +135,19 @@ public class HybridEncryptionTest {
     @Test
     void getAndDecryptElementsFromFile() throws URISyntaxException, IOException, GeneralSecurityException, ParseException{
         
-        // Create the phenopacket 
+        // Create Covid19 Phenopacket 
         Phenopacket phenopacket = covidCase.covid19Phenopacket();
         String phenopacketId = phenopacket.getId();
-        // Save the phenopacket and the encrypted metadata
+        // Save the Phenopacket and the encrypted MetaData
         SecurePhenopacket.protectMetaData(phenopacket);
 
-        // Get phenopacket bytes from file
+        // Get Phenopacket bytes from file
         byte[] phenopacketBytes = HybridEncryption.getCipherBytes("Phenopacket", phenopacketId);
 
-        // Get encrypted metaData
+        // Get encrypted MetaData
         byte[] cipherMetadata = HybridEncryption.getCipherBytes("Metadata", phenopacketId);
 
-        // Decrypt metadata
+        // Decrypt MetaData
         MetaData plainMetaData = MainElements.getMetaData(cipherMetadata, phenopacketId.getBytes());
 
         Phenopacket phenopacketFromFile = Phenopacket.parseFrom(phenopacketBytes);
@@ -154,8 +155,10 @@ public class HybridEncryptionTest {
         String plainAge = BlockBuilder.getAge(age, phenopacketId.getBytes());
 
         // Checks 
-        Assertions.assertNotEquals(phenopacket.getMetaData().toByteArray(), cipherMetadata, "Two elements are the same");
-        Assertions.assertEquals(phenopacket.getMetaData(), plainMetaData, "Expected same value");
-        Assertions.assertEquals(covidCase.isoAge, plainAge);
+        Assertions.assertNotEquals(phenopacket.getMetaData().toByteArray(), cipherMetadata, 
+        "The two elements are the same");
+        Assertions.assertEquals(phenopacket.getMetaData(), plainMetaData, 
+        "Expected same MetaData element");
+        Assertions.assertEquals(covidCase.isoAge, plainAge,"Expected value isoAge = P70Y");
     }
 }

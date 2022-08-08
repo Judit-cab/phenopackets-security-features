@@ -80,13 +80,16 @@ public class SecurePhenopacket {
         MetaData metaData = phenopacket.getMetaData();
         String phenopacketId = phenopacket.getId();
         
-        phenopacket = Phenopacket.newBuilder().clearMetaData().build();
+        phenopacket = Phenopacket.newBuilder(phenopacket).clearMetaData().build();
+        System.out.println("Phenopacket is:" + phenopacket);
 
         byte[] cipherMetadata = MainElements.protectedMetaData(metaData, phenopacketId.getBytes());
         byte[] phenopacketBytes = phenopacket.toByteArray();
 
         HybridEncryption.saveInFile(cipherMetadata, "Metadata", phenopacketId);
         HybridEncryption.saveInFile(phenopacketBytes, "Phenopacket", phenopacketId);
+        
+        System.out.println("The elements have been saved successfully");
     }
 
     /**

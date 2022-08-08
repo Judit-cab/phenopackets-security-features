@@ -1,11 +1,10 @@
 package tfm.phenopackets_security_features;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.phenopackets.secure.schema.Phenopacket;
 
@@ -20,7 +19,6 @@ public class DigitalSignatureTest {
     Covid19 covidCase = new Covid19();
 
     @Test
-    
     void checkDigitalSignature() throws IOException, URISyntaxException, ParseException, GeneralSecurityException{
         
         Phenopacket covidPhenopacket = covidCase.covid19Phenopacket();
@@ -29,27 +27,17 @@ public class DigitalSignatureTest {
 
         System.out.println("The unique identifiers is :" + phenopacketId);
         
+        // Function that signs the Phenopacket and saves the signature to a file
         SecurePhenopacket.signPhenopacket(covidPhenopacket);
         System.out.println("Phenopacket successfully signed");
 
-        try{
-            SecurePhenopacket.verifyPhenopacket(covidPhenopacket);
-            
-        }catch(Exception ex){
-            System.out.println(ex);
-        }
-        
-    }
-
-    @Test
-    void verifyDigitalSignatureFromFile() throws URISyntaxException, IOException, GeneralSecurityException{
-        String phenopacketId = "0fdf0d92-c1d0-4c89-b8c6-c3233db58496";
-       
+        // Get the signature and Phenopacket from file
         byte[] phenopacketBytes = SecurePhenopacket.getPhenopacketFromFile(phenopacketId);
 
+        // Method to verify the signature, returns True if the verification is correct
         Boolean isVerfied = DigitalSignature.searchSignatureAndVerify(phenopacketBytes, phenopacketId);
 
-        assertTrue(isVerfied);
+        Assertions.assertTrue(isVerfied, "Signature cannot be verified");
     }
     
 }

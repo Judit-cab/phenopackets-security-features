@@ -285,7 +285,8 @@ public class MainElements {
     public static String getMetaDataCreator(MetaData metaData, String phenopacketId) throws IOException, GeneralSecurityException, URISyntaxException{
        
         // Get the created_by field bytes
-        byte[] createdBytes = metaData.getCreatedBy().getBytes();
+        String createdBy = metaData.getCreatedBy();
+        byte[] createdBytes = Base64.getDecoder().decode(createdBy);
         
         // Decrypt the above bytes with the decryption method
         byte[] plainCreatedBy = HybridEncryption.hybridEncryption(MODE_DEC, createdBytes, phenopacketId.getBytes());
