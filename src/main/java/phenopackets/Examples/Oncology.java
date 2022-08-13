@@ -59,7 +59,7 @@ public class Oncology {
     public String phenopacketSchemaVersion = "2.0";
 
 
-    public Individual createOntologyIndividual() throws IOException, GeneralSecurityException, URISyntaxException{
+    public Individual createOncologyIndividual() throws IOException, GeneralSecurityException, URISyntaxException{
         // Create the age block
         TimeElement age = BlockBuilder.createTimeElementAge(isoAge.getBytes(), phenopacketId.getBytes());
         // Assign vital status
@@ -70,7 +70,7 @@ public class Oncology {
         return individual;
     }
 
-    public List<PhenotypicFeature> createOntologyPhenotypicFeature(){
+    public List<PhenotypicFeature> createOncologyPhenotypicFeature(){
         List<PhenotypicFeature> phenotypicFeatures = new ArrayList<PhenotypicFeature>();
         List<Evidence> evidences =  new ArrayList<Evidence>();
 
@@ -88,7 +88,7 @@ public class Oncology {
 
     }
 
-    public List<Disease> createOntologyDisease() throws IOException, GeneralSecurityException, URISyntaxException{
+    public List<Disease> createOncologyDisease() throws IOException, GeneralSecurityException, URISyntaxException{
         List<Disease> diseases = new ArrayList<Disease>();
         List<OntologyClass> diseaseStages = new ArrayList<OntologyClass>();
         List<OntologyClass> tnmFindings = new ArrayList<OntologyClass>();
@@ -104,7 +104,7 @@ public class Oncology {
 
     }
 
-    public MetaData createOntologyMetaData() throws IOException, GeneralSecurityException, URISyntaxException{
+    public MetaData createOncologyMetaData() throws IOException, GeneralSecurityException, URISyntaxException{
 
         // Create the variables needed for the creation
         List<Resource> resources =  new ArrayList<Resource>();
@@ -121,13 +121,13 @@ public class Oncology {
         return metaData;
     }
 
-    public Phenopacket createOntologyPhenopacket() throws IOException, GeneralSecurityException, URISyntaxException{
+    public Phenopacket createOncologyPhenopacket() throws IOException, GeneralSecurityException, URISyntaxException{
         return Phenopacket.newBuilder()
             .setId(phenopacketId)
-            .setSubject(createOntologyIndividual())
-            .addAllPhenotypicFeatures(createOntologyPhenotypicFeature())
-            .addAllDiseases(createOntologyDisease())
-            .setMetaData(createOntologyMetaData())
+            .setSubject(createOncologyIndividual())
+            .addAllPhenotypicFeatures(createOncologyPhenotypicFeature())
+            .addAllDiseases(createOncologyDisease())
+            .setMetaData(createOncologyMetaData())
             .build();
     }
 
