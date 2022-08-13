@@ -112,7 +112,6 @@ public class ExternalResources {
             e.printStackTrace();
         }
 
-        System.out.println("JSON file created: " +js);
         return js;
 
       }

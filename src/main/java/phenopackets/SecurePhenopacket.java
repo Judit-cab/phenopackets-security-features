@@ -1,10 +1,14 @@
 package phenopackets;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.util.Base64;
 import java.util.List;
@@ -16,7 +20,9 @@ import org.phenopackets.secure.schema.core.MedicalAction;
 import org.phenopackets.secure.schema.core.MetaData;
 import org.phenopackets.secure.schema.core.PhenotypicFeature;
 
+
 import com.google.gson.stream.JsonReader;
+import com.google.protobuf.util.JsonFormat;
 import com.nimbusds.jose.shaded.json.JSONObject;
 import com.nimbusds.jose.shaded.json.parser.ParseException;
 
@@ -162,6 +168,46 @@ public class SecurePhenopacket {
         
         System.out.println(phenopacketBytes);
         return phenopacketBytes;
+    }
+
+    /*
+     * Export Phenopacket to JSON
+     */
+    public static void exportPhenopacket(Phenopacket phenopacket) throws URISyntaxException{
+       
+        try{
+            String jsonString = JsonFormat.printer().includingDefaultValueFields().print(phenopacket);
+            System.out.println(jsonString);
+            String path = externalResource.getNewPath(phenopacket.getId(),".json" );
+            File phenopacketJson = new File(path);
+
+            BufferedWriter fileWriter = new BufferedWriter(new FileWriter(phenopacketJson));     
+            fileWriter.write(jsonString);
+            fileWriter.close();
+
+        }catch(IOException ex){
+            ex.printStackTrace();
+        }
+    }
+
+    /*
+     * Import Phenopacket from JSON
+     */
+    public static Phenopacket importPhenopacket(String path) throws URISyntaxException, ParseException, IOException{
+        File jsonFile = new File(path);
+        String js = Files.readString(jsonFile.toPath());
+
+        Phenopacket phenopacket = null;
+
+        try{
+            Phenopacket.Builder phenopacketBuilder = Phenopacket.newBuilder();
+            JsonFormat.parser().merge(js, phenopacketBuilder);
+            phenopacket = phenopacketBuilder.build();
+       
+        }catch(IOException ex){
+            ex.printStackTrace();
+        }
+        return phenopacket;
     }
     
 }

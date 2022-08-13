@@ -107,7 +107,7 @@ public class Covid19 {
     evidences.add(evidence);
 
     PhenotypicFeature phenotypicFeature1 = MainElements.createPhenotypicFeature(phenotypicType1, severity, evidences, onset,resolution);
-    PhenotypicFeature phenotypicFeature2 = MainElements.createPhenotypicFeature(phenotypicType1, severity, evidences, onset,resolution);
+    PhenotypicFeature phenotypicFeature2 = MainElements.createPhenotypicFeature(phenotypicType2, severity, evidences, onset,resolution);
 
     phenotypicFeatures.add(phenotypicFeature1);
     phenotypicFeatures.add(phenotypicFeature2);
