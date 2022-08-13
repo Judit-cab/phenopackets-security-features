@@ -61,13 +61,13 @@ public class Covid19 {
   public OntologyClass schedule = BlockBuilder.createOntologyClass("NCIT:C64597","Immediately");
   
   // Disease values
-  OntologyClass term1 = BlockBuilder.createOntologyClass("NCIT:C2985", "Diabetes Mellitus");
-  OntologyClass term2 = BlockBuilder.createOntologyClass("NCIT:C34830", "Cardiomyopathy");
-  Boolean excluded = true;
+  public OntologyClass term1 = BlockBuilder.createOntologyClass("NCIT:C2985", "Diabetes Mellitus");
+  public OntologyClass term2 = BlockBuilder.createOntologyClass("NCIT:C34830", "Cardiomyopathy");
+  public Boolean excluded = true;
 
   // Values not included in the example
-  OntologyClass primarySite = BlockBuilder.createOntologyClass("UBERON:0000948", "heart");
-  OntologyClass diseaseStage = BlockBuilder.createOntologyClass("NCIT:C27971", "Stage IV");
+  public OntologyClass primarySite = BlockBuilder.createOntologyClass("UBERON:0000948", "heart");
+  public OntologyClass diseaseStage = BlockBuilder.createOntologyClass("NCIT:C27971", "Stage IV");
 
   // MetaData values
   public String phenopacketSchemaVersion = "2.0";
@@ -135,7 +135,7 @@ public class Covid19 {
     return medicalActions;
   }
 
-  private  List<Disease> createCovidDisease() throws IOException, GeneralSecurityException, URISyntaxException{
+  public  List<Disease> createCovidDisease() throws IOException, GeneralSecurityException, URISyntaxException{
     
     List<Disease> diseases = new ArrayList<Disease>();
     List<OntologyClass> diseaseStages = new ArrayList<OntologyClass>();
