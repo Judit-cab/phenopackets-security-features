@@ -34,7 +34,7 @@ public class createPhenopacketTest {
     
         Individual individual = covidCase.createCovidSubject();
 
-        Assertions.assertEquals(covidCase.isoAge, individual.getTimeAtLastEncounter());
+        Assertions.assertNotEquals(covidCase.isoAge, individual.getTimeAtLastEncounter());
         Assertions.assertEquals(covidCase.karyorypicSex, individual.getKaryotypicSexValue());
     }
 
