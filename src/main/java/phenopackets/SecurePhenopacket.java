@@ -8,7 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.util.Base64;
 import java.util.List;
@@ -26,9 +25,9 @@ import com.google.protobuf.util.JsonFormat;
 import com.nimbusds.jose.shaded.json.JSONObject;
 import com.nimbusds.jose.shaded.json.parser.ParseException;
 
-import phenopackets.securityFeatures.DigitalSignature;
-import phenopackets.securityFeatures.ExternalResources;
-import phenopackets.securityFeatures.HybridEncryption;
+import phenopackets.securityMechanisms.DigitalSignature;
+import phenopackets.securityMechanisms.ExternalResources;
+import phenopackets.securityMechanisms.HybridEncryption;
 
 import org.phenopackets.secure.schema.Phenopacket;
 

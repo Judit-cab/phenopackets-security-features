@@ -15,8 +15,8 @@ import com.nimbusds.jose.shaded.json.parser.ParseException;
 
 import phenopackets.MainElements;
 import phenopackets.SecurePhenopacket;
-import phenopackets.Examples.Covid19;
-import phenopackets.securityFeatures.HybridEncryption;
+import phenopackets.examples.Covid19;
+import phenopackets.securityMechanisms.HybridEncryption;
 import phenopackets.BlockBuilder;
 
 public class HybridEncryptionTest {

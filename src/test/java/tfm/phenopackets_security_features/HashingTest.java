@@ -14,9 +14,9 @@ import org.phenopackets.secure.schema.core.Disease;
 import org.phenopackets.secure.schema.core.MedicalAction;
 import org.phenopackets.secure.schema.core.PhenotypicFeature;
 
-import phenopackets.Examples.Covid19;
-import phenopackets.Examples.Oncology;
-import phenopackets.securityFeatures.Hashing;
+import phenopackets.examples.Covid19;
+import phenopackets.examples.Oncology;
+import phenopackets.securityMechanisms.Hashing;
 
 
 public class HashingTest {

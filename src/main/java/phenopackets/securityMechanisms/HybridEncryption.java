@@ -1,4 +1,4 @@
-package phenopackets.securityFeatures;
+package phenopackets.securityMechanisms;
 
 import com.google.crypto.tink.CleartextKeysetHandle;
 import com.google.crypto.tink.HybridDecrypt;

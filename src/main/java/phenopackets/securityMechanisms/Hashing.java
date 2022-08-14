@@ -1,4 +1,4 @@
-package phenopackets.securityFeatures;
+package phenopackets.securityMechanisms;
 
 import java.io.File;
 import java.io.IOException;

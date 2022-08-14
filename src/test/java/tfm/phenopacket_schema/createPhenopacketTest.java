@@ -20,8 +20,8 @@ import org.phenopackets.secure.schema.core.PhenotypicFeature;
 import com.nimbusds.jose.shaded.json.parser.ParseException;
 
 import phenopackets.SecurePhenopacket;
-import phenopackets.Examples.Covid19;
-import phenopackets.securityFeatures.ExternalResources;
+import phenopackets.examples.Covid19;
+import phenopackets.securityMechanisms.ExternalResources;
 
 public class createPhenopacketTest {
     Covid19 covidCase = new Covid19();

@@ -1,4 +1,4 @@
-package phenopackets.Examples;
+package phenopackets.examples;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

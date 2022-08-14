@@ -11,8 +11,8 @@ import org.phenopackets.secure.schema.Phenopacket;
 import com.nimbusds.jose.shaded.json.parser.ParseException;
 
 import phenopackets.SecurePhenopacket;
-import phenopackets.Examples.Covid19;
-import phenopackets.securityFeatures.DigitalSignature;
+import phenopackets.examples.Covid19;
+import phenopackets.securityMechanisms.DigitalSignature;
 
 public class DigitalSignatureTest {
 

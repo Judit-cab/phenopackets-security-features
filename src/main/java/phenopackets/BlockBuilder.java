@@ -4,7 +4,7 @@ import org.phenopackets.secure.schema.core.*;
 
 import com.google.protobuf.Timestamp;
 
-import phenopackets.securityFeatures.HybridEncryption;
+import phenopackets.securityMechanisms.HybridEncryption;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
