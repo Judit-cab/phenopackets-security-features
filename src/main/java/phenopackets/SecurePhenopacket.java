@@ -1,4 +1,4 @@
-package phenopackets;
+ package phenopackets;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -106,10 +106,10 @@ public class SecurePhenopacket {
      */
     public static void signPhenopacket(Phenopacket phenopacket) throws IOException, URISyntaxException, ParseException{
         
-        // Parse to byte array 
+        // Serialize to byte array 
         byte[] phenopacketBytes = phenopacket.toByteArray();
         
-        // Get the id as identifier 
+        // Get the ID as identifier 
         String phenopacketId = phenopacket.getId();
 
         // Sign the element
@@ -126,10 +126,10 @@ public class SecurePhenopacket {
      */
     public static  void verifyPhenopacket(Phenopacket phenopacket) throws IOException, URISyntaxException, ParseException{
         
-        // Parse to byte array 
+        // Serialize to byte array  
         byte[] phenopacketBytes = phenopacket.toByteArray();
         
-        // Get the id as identifier 
+        // Get the ID as identifier 
         String phenopacketId = phenopacket.getId();
 
         // Verify the element
