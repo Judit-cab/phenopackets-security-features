@@ -43,15 +43,14 @@ public class Hashing {
      * @throws URISyntaxException
      */
     public static String computeDiseaseHash(Disease diseaseElement, String phenopacketId, String diseaseName) throws IOException, URISyntaxException{
-
+        // Serialize the Disease element to a byte array
         byte[] diseaseBytes = diseaseElement.toByteArray();
+        // Compute the hash
         byte [] hash = computeHash(diseaseBytes);
-
+        // Store the hash in a file linked with its name
         externalResource.addHashToFile(phenopacketId, hash, diseaseName);
-
-
+        // Return the hash as String
         return new String(Hex.encode(hash));
-        
     }
 
     /**
