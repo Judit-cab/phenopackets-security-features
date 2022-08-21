@@ -26,15 +26,13 @@ public class DigitalSignature {
 
     private static final String PK_FILE = "pk_verify.json"; 
     private static final String SK_FILE = "pk_sign.json"; 
-    private static final String SIGNATURES_FILE = "signatures";
-    private static final String FILE_FORMAT = ".json";
+    private static final String SIGNATURES_FILE = "signatures.json";
   
     static ExternalResources externalResource = new ExternalResources();
     public static JSONObject jsonObj = new JSONObject();
 
-
     /**
-     * Primate method to sign the Phenopacket element
+     * Private method to sign the Phenopacket element
      * @param element required - the Phenopacket element 
      * @return the signature bytes 
      * @throws GeneralSecurityException
@@ -42,7 +40,10 @@ public class DigitalSignature {
      * @throws URISyntaxException
      */
     private static byte[] signElement(byte[] element) throws GeneralSecurityException, IOException, URISyntaxException{
-        
+         // Input validation
+         if (element == null || element.length == 0){
+            throw new NullPointerException();
+        }
         // Read and store the private key to sign
         KeysetHandle handle = CleartextKeysetHandle.read(JsonKeysetReader.withFile(externalResource.getFileFromResource(SK_FILE)));
         
@@ -63,14 +64,22 @@ public class DigitalSignature {
     /**
      * Private method to verify the above signature
      * @param element required - the Phenopacket element 
-     * @param signature required - the signature 
+     * @param signature required - the signature
+     * @return boolean value. If the signatures was verified then returns true, otherwise false 
      * @throws GeneralSecurityException
      * @throws IOException
      * @throws URISyntaxException
      */
     private static Boolean verifyElement(byte[] element, byte[]signature) throws GeneralSecurityException, IOException, URISyntaxException{
+         // Input validation
+         if (element == null || element.length == 0){
+            throw new NullPointerException();
+        }
+        if (signature == null || signature.length == 0){
+            throw new NullPointerException();
+        }
 
-        //Set variable 
+        //Set Boolean variable 
         Boolean isVerified = false; 
         // Read and store the public key to verify
         KeysetHandle handle = CleartextKeysetHandle.read(JsonKeysetReader.withFile(externalResource.getFileFromResource(PK_FILE)));
@@ -98,13 +107,18 @@ public class DigitalSignature {
      * Main process to sign or verify the element
      * @param mode required - two actions are allowed: sign or verify
      * @param elementBytes required - the phenopacket element
-     * @param elementID required - the Phenopacket Id
+     * @param phenopacketId required - the Phenopacket Id
      * @throws IOException
      * @throws URISyntaxException
      * @throws ParseException
      */
-    public static void protectWithDS(String mode, byte[] elementBytes, String elementID) throws IOException, URISyntaxException, ParseException{
+    public static void protectWithDS(String mode, byte[] elementBytes, String phenopacketId) throws IOException, URISyntaxException, ParseException{
         
+        // Input validation
+        if ( phenopacketId == null || phenopacketId.length() == 0){
+            throw new NullPointerException();
+        }
+
         //Set variable 
         Boolean isVerified = false; 
         try {
@@ -122,12 +136,11 @@ public class DigitalSignature {
                 // Store the signature in a jsonObj and create a file with the signature
                 String ptSignature = new String(Base64.getEncoder().encode(signatureBytes), StandardCharsets.UTF_8);
                 String ptPhenopacket = new String(Base64.getEncoder().encode(elementBytes), StandardCharsets.UTF_8);
-                externalResource.createJSONFile(SIGNATURES_FILE, ptPhenopacket, elementID);
-                externalResource.createJSONFile(SIGNATURES_FILE, ptSignature, elementID+"-Signature");
+                externalResource.createJSONFile(SIGNATURES_FILE, ptPhenopacket, phenopacketId);
+                externalResource.createJSONFile(SIGNATURES_FILE, ptSignature, phenopacketId+"-Signature");
                 
-
             }else if(mode.equals("verify")){
-                isVerified = searchSignatureAndVerify(elementBytes, elementID);
+                isVerified = searchSignatureAndVerify(elementBytes, phenopacketId);
                 System.out.println("Verified:" + isVerified);
             }
         }catch (java.security.GeneralSecurityException e){
@@ -138,13 +151,19 @@ public class DigitalSignature {
     /**
      * Method to search a signature in a json file and check if is correct
      * @param elementBytes required - the element bytes to verify the signature
-     * @param elementID required - the Phenopacket ID
+     * @param phenopacketId required - the Phenopacket ID
+     * @return boolean value. If the signatures was verified then returns true, otherwise false 
      * @throws URISyntaxException
      * @throws IOException
      * @throws GeneralSecurityException
      */
-    public static Boolean searchSignatureAndVerify(byte[] elementBytes, String elementID) throws URISyntaxException, IOException, GeneralSecurityException{
+    private static Boolean searchSignatureAndVerify(byte[] elementBytes, String phenopacketId) throws URISyntaxException, IOException, GeneralSecurityException{
         
+        // Input validation
+        if (elementBytes == null || elementBytes.length == 0){
+            throw new NullPointerException();
+        }
+
         // Set variable
         Boolean isVerified = false;
 
@@ -152,7 +171,7 @@ public class DigitalSignature {
         SignatureConfig.register();
 
         // Get the file with the signature
-        File signaturesFile = externalResource.getFileFromResource(SIGNATURES_FILE+FILE_FORMAT);
+        File signaturesFile = externalResource.getFileFromResource(SIGNATURES_FILE);
 
         try (FileReader reader = new FileReader(signaturesFile)){
             JsonReader js =  new JsonReader(reader);
@@ -161,7 +180,7 @@ public class DigitalSignature {
             while (js.hasNext()) {
                 String field = js.nextName();
                 
-                if (field.equals(elementID+"-Signature")) {
+                if (field.equals(phenopacketId+"-Signature")) {
                     String ptSignature = js.nextString();
                     // Get the signature Bytes from the file
                     byte[] signatureBytes = Base64.getDecoder().decode(ptSignature);
@@ -176,9 +195,7 @@ public class DigitalSignature {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
         return isVerified;
-
     }
 
     private DigitalSignature() {}

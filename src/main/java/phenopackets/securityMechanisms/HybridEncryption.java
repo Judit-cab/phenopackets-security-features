@@ -191,7 +191,6 @@ public class HybridEncryption {
         externalResource.createJSONFile(fileName+FILE_FORMAT, ptBytes, elementName);
     }
 
-
     /**
      * Method to retrieve the stored cypherbytes
      * @param elementName required - element that was encrypted

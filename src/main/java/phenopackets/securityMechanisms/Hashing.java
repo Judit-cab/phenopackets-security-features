@@ -24,7 +24,10 @@ public class Hashing {
      * @return the hash bytes
      */
     private static byte[] computeHash(byte[] element) {
-
+         // Input validation
+         if (element == null || element.length == 0){
+            throw new NullPointerException();
+        }
         // Generate a new Keccak instance
         Keccak.Digest256 digest256 = new Keccak.Digest256();
         // Compute hash of an element
@@ -35,46 +38,60 @@ public class Hashing {
 
     /**
      * Method to compute the hash of the Disease element
-     * @param diseaseElement required - the Disease element
+     * @param disease required - the Disease element
      * @param phenopacketId required - Phenopacket ID
-     * @param diseaseName required - the specific disease name
      * @return the hash 
      * @throws IOException
      * @throws URISyntaxException
      */
-    public static String computeDiseaseHash(Disease diseaseElement, String phenopacketId, String diseaseName) throws IOException, URISyntaxException{
+    public static String computeDiseaseHash(Disease disease, String phenopacketId) throws IOException, URISyntaxException{
+        // Input validation
+        if (disease == null){
+            throw new NullPointerException();
+        }
+        if (phenopacketId == null || phenopacketId.length()==0){
+            throw new NullPointerException();
+        }
+  
         // Serialize the Disease element to a byte array
-        byte[] diseaseBytes = diseaseElement.toByteArray();
+        byte[] diseaseBytes = disease.toByteArray();
         // Compute the hash
         byte [] hash = computeHash(diseaseBytes);
         // Store the hash in a file linked with its name
-        externalResource.addHashToFile(phenopacketId, hash, diseaseName);
+        externalResource.addHashToFile(phenopacketId, hash, disease.getTerm().getLabel());
         // Return the hash as String
         return new String(Hex.encode(hash));
     }
 
     /**
-     * Method to compute the hash of the Phenotypic Feature element
-     * @param phenotypicFeature required - the Phenotypic Feature element
+     * Method to compute the hash of the PhenotypicFeature element
+     * @param phenotypicFeature required - the PhenotypicFeature element
      * @param phenopacketId required - Phenopacket ID
-     * @param phenotypicName required - the specific phenotypic name
      * @return the hash String
      * @throws IOException
      * @throws URISyntaxException
      */
-    public static String computePhenotypicFeatureHash(PhenotypicFeature phenotypicFeature, String phenopacketId, String phenotypicName) throws IOException, URISyntaxException{
-
+    public static String computePhenotypicFeatureHash(PhenotypicFeature phenotypicFeature, String phenopacketId) throws IOException, URISyntaxException{
+        // Input validation
+        if (phenotypicFeature == null){
+            throw new NullPointerException();
+        }
+        if (phenopacketId == null || phenopacketId.length()==0){
+            throw new NullPointerException();
+        }
+        // Serialize the PhenotypicFeature element to a byte array
         byte[] phenotypicFeatureBytes = phenotypicFeature.toByteArray();
+        // Compute the hash
         byte [] hash = computeHash(phenotypicFeatureBytes);
-
-        externalResource.addHashToFile(phenopacketId, hash, phenotypicName);
-
+        // Store the hash in a file linked with its name
+        externalResource.addHashToFile(phenopacketId, hash, phenotypicFeature.getType().getLabel());
+        // Return the hash as String
         return new String(Hex.encode(hash));
         
     }
 
     /**
-     * Method to compute the hash of the Disease element
+     * Method to compute the hash of the MedicalAction element
      * @param medicalAction required- a MedicalAction element
      * @param phenopacketId required - Phenopacket ID
      * @param medicalActionName required - the specific medical action performed
@@ -83,14 +100,36 @@ public class Hashing {
      * @throws URISyntaxException
      */
     public static String  computeMedicalAction(MedicalAction medicalAction, String phenopacketId, String medicalActionName) throws IOException, URISyntaxException{
+        // Input validation
+        if (medicalAction == null){
+            throw new NullPointerException();
+        }
+        if (phenopacketId == null || phenopacketId.length()==0){
+            throw new NullPointerException();
+        }
+        if (medicalActionName == null || medicalActionName.length()==0){
+            throw new NullPointerException();
+        }
 
+        // Serialize the PhenotypicFeature element to a byte array
         byte[] medicalActionBytes = medicalAction.toByteArray();
+        // Compute the hash
         byte [] hash = computeHash(medicalActionBytes);
-
+        // Store the hash in a file linked with its name
         externalResource.addHashToFile(phenopacketId, hash, medicalActionName);
-
+        // Return the hash as String
         return new String(Hex.encode(hash));
-        
+    }
+
+    /**
+     * Method to calculate any hash of any Phenopacket element
+     * @param element required - Element to compute hash
+     * @return the hash as string
+     */
+    public String computeHashElement(byte[] element){
+        byte[] hash = computeHash(element);
+         // Return the hash as String
+         return new String(Hex.encode(hash));
     }
 
     /**
@@ -102,6 +141,14 @@ public class Hashing {
      * @throws IOException
      */
     public static String getHash(String fileName, String element) throws URISyntaxException, IOException{
+        // Input validation
+        if (fileName == null || fileName.length()==0){
+            throw new NullPointerException();
+        }
+        if (element == null || element.length()==0){
+            throw new NullPointerException();
+        }
+        
         String hash = null;
 
         File hashFile = externalResource.getFileFromResource(fileName+FORMAT_FILE);
@@ -113,9 +160,7 @@ public class Hashing {
                 System.out.println(hashLine[1]);
                 hash = hashLine[1];
             }
-
         }
-
         return hash;
     }
 
@@ -128,7 +173,7 @@ public class Hashing {
     public static boolean checkHash(byte[] element, String storedHash){
         
         boolean result = false;
-        // Input parameter verification
+        // Input validation
         if(element!=null && !storedHash.isBlank()){
             
             byte [] hash = computeHash(element);
@@ -140,10 +185,6 @@ public class Hashing {
         }else{
             throw new NullPointerException();
         }
-
         return result;
     }
-
-
-
 }

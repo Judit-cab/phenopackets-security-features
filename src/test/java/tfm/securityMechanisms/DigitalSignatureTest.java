@@ -12,7 +12,6 @@ import com.nimbusds.jose.shaded.json.parser.ParseException;
 
 import phenopackets.SecurePhenopacket;
 import phenopackets.examples.Covid19;
-import phenopackets.securityMechanisms.DigitalSignature;
 
 public class DigitalSignatureTest {
 
@@ -27,10 +26,7 @@ public class DigitalSignatureTest {
         System.out.println("The unique identifier is :" + phenopacketId);
         
         SecurePhenopacket.signPhenopacket(covidPhenopacket);
-        byte[] phenopacketBytes = SecurePhenopacket.getPhenopacketFromFile(phenopacketId);
+        SecurePhenopacket.verifyPhenopacket(covidPhenopacket);
 
-        Boolean isVerfied = DigitalSignature.searchSignatureAndVerify(phenopacketBytes, phenopacketId);
-
-        Assertions.assertTrue(isVerfied.equals(true), "Signature cannot be verified");
     }   
 }

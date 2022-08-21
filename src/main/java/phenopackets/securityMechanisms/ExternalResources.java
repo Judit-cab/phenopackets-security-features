@@ -18,14 +18,11 @@ public class ExternalResources {
     private static final String FORMAT_JSON = ".json";
 
     JSONObject js = new JSONObject();
-    
-
-    // get a file from the resources folder
-    // works everywhere, IDEA, unit test and JAR file.
 
     /**
+     * Method to get file from resources folder. In case the file doesn't exist, the method creates a new one
      * @param fileName
-     * @return
+     * @return the required file
      * @throws URISyntaxException
      */
     public File getFileFromResource(String fileName) throws URISyntaxException{
@@ -48,8 +45,14 @@ public class ExternalResources {
         return path;
     }
 
+    /**
+     * Method to create a new file
+     * @param fileName required - name of the file
+     * @return the new File
+     * @throws URISyntaxException
+     */
     public File createNewFile(String fileName) throws URISyntaxException{
-        
+
         URL resource = getClass().getClassLoader().getResource(DEFAULT_PATH);
         String path = resource.toString().replace(DEFAULT_PATH, fileName).replace("file:", "");
         File newFile = new File(path);
@@ -57,9 +60,16 @@ public class ExternalResources {
         return newFile;
     }
 
-      public void addHashToFile(String fileName, byte[] hash, String element) throws IOException, URISyntaxException{
-        try{ 
-            
+    /**
+     * Method to add a new hash to File
+     * @param fileName required - name of the file
+     * @param hash required - hash value
+     * @param element required - element linket to the hash
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    public void addHashToFile(String fileName, byte[] hash, String element) throws IOException, URISyntaxException{
+        try{
             //String path = getNewPath(fileName, FORMAT_TXT);
             File hashFile = getFileFromResource(fileName);
 
@@ -74,7 +84,19 @@ public class ExternalResources {
         }
       }
 
-      public void createJSONFile(String fileName, String bytes, String element) throws URISyntaxException, ParseException{
+    /**
+     * Method to create JSON file and adds a JSON object
+     * @param fileName required - name of the file
+     * @param bytes required - bytes element
+     * @param element required - name of the element
+     * @throws URISyntaxException
+     * @throws ParseException
+     */
+    public void createJSONFile(String fileName, String bytes, String element) throws URISyntaxException, ParseException{
+        // Input validation
+         if (bytes == null ||  bytes.length() == 0){
+            throw new NullPointerException();
+        }
         try {
             File jsonFile = createNewFile(fileName);
 
@@ -97,7 +119,14 @@ public class ExternalResources {
         }
       }
       
-      public JSONObject getJSONFromFile(File jsonFile) throws ParseException, IOException{
+    /**
+     * Method to get JSON object from file
+     * @param jsonFile required - JSON File
+     * @return JSON object
+     * @throws ParseException
+     * @throws IOException
+     */
+    public JSONObject getJSONFromFile(File jsonFile) throws ParseException, IOException{
         JSONObject js = new JSONObject();
 
         try(FileReader reader = new FileReader(jsonFile)){
@@ -115,5 +144,4 @@ public class ExternalResources {
         }
         return js;
       }
-
 }

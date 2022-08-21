@@ -37,8 +37,8 @@ public class HashingTest {
          // Get the name of the second phenotypic feature
         String phenotypic2 = phenotypicFeature2.getType().getLabel();
         // Compute hash for both elements, the hash will be stored in a specific file
-        String hash1 = Hashing.computePhenotypicFeatureHash(phenotypicFeature1, phenopacketId, phenotypic1);
-        String hash2 = Hashing.computePhenotypicFeatureHash(phenotypicFeature2, phenopacketId, phenotypic2);
+        String hash1 = Hashing.computePhenotypicFeatureHash(phenotypicFeature1, phenopacketId);
+        String hash2 = Hashing.computePhenotypicFeatureHash(phenotypicFeature2, phenopacketId);
 
         // Retrieve the hash from the file
         String hash1File = Hashing.getHash(phenopacketId, phenotypic1);
@@ -58,7 +58,7 @@ public class HashingTest {
         // Get the name of the Disease
         String diseaseName = disease.getTerm().getLabel();
         // Compute hash
-        String hash = Hashing.computeDiseaseHash(disease, phenopacketId, diseaseName);
+        String hash = Hashing.computeDiseaseHash(disease, phenopacketId);
 
          // Retrieve the hash from the file
         String hashFile = Hashing.getHash(phenopacketId, diseaseName);
