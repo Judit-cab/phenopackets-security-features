@@ -1,4 +1,4 @@
-package tfm.phenopackets_security_features;
+package tfm.securityMechanisms;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -48,7 +48,6 @@ public class HybridEncryptionTest {
      * TEST: check if the decryption works for Age element
      * Expected value: isoAge = "P70Y"
      */
-
     @Test
     void checkAgeDecryption() throws IOException, GeneralSecurityException, URISyntaxException { 
         
@@ -64,13 +63,10 @@ public class HybridEncryptionTest {
         "Expected value isoAge = P70Y");
     }
 
-
-
     /*
      * TEST: Encrypt and decrypt Phenopacket creator stored in metaData element
      * Value to check: createdBy = "Judit C.";
      */
-
     @Test 
     void createMetadaProtectingCreator() throws IOException, GeneralSecurityException, URISyntaxException{
 
@@ -131,7 +127,6 @@ public class HybridEncryptionTest {
      *  2. get all the encrypted elements (metadata bytes and age element from Phenopacket)
      *  3. decrypt the elements to check if the process works well
      */
-
     @Test
     void getAndDecryptElementsFromFile() throws URISyntaxException, IOException, GeneralSecurityException, ParseException{
         

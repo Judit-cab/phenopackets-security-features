@@ -23,12 +23,9 @@ import phenopackets.SecurePhenopacket;
 import phenopackets.examples.Covid19;
 import phenopackets.securityMechanisms.ExternalResources;
 
-public class createPhenopacketTest {
+public class securePhenopacketTest {
     Covid19 covidCase = new Covid19();
 
-    /*
-     * Test to check an individual can be successfully created
-     */
     @Test
     void checkIndividualCreation() throws IOException, GeneralSecurityException, URISyntaxException{
     
@@ -38,10 +35,6 @@ public class createPhenopacketTest {
         Assertions.assertEquals(covidCase.karyorypicSex, individual.getKaryotypicSexValue());
     }
 
-    /*
-     * Test to check Phenotypic Features can be successfully created
-     * 
-     */
     @Test
     void checkPhenotypicFeatureCreation() throws IOException, GeneralSecurityException, URISyntaxException{ 
 
@@ -61,13 +54,8 @@ public class createPhenopacketTest {
         Assertions.assertEquals(covidCase.evidence, phenotypicFeature2.getEvidenceList().get(0));
         Assertions.assertEquals(covidCase.onset, phenotypicFeature2.getOnset());
         Assertions.assertEquals(covidCase.resolution, phenotypicFeature2.getResolution());
-
     }
 
-    /*
-     * Test to check Disease can be successfully created
-     * 
-     */
     @Test
     void checkDiseaseCreation() throws IOException, GeneralSecurityException, URISyntaxException{ 
 
@@ -86,13 +74,8 @@ public class createPhenopacketTest {
         Assertions.assertEquals(covidCase.diseaseStage, disease2.getDiseaseStage(0));
         Assertions.assertEquals(covidCase.primarySite, disease2.getPrimarySite());
         Assertions.assertNotEquals(covidCase.isoAge, disease2.getOnset());
-
     }
 
-    /*
-     * Test to check MedicalActions can be successfully created
-     * 
-     */
     @Test
     void checkMedicalActionCreation() throws IOException, GeneralSecurityException, URISyntaxException{ 
 
@@ -113,10 +96,6 @@ public class createPhenopacketTest {
         Assertions.assertEquals(covidCase.interval, treatment.getTreatment().getDoseIntervals(0).getInterval());
     }
 
-    /*
-     * Test to check metadata can be successfully created
-     * 
-     */
     @Test 
     void checkMetadaCreation() throws IOException, GeneralSecurityException, URISyntaxException{
 
@@ -133,19 +112,13 @@ public class createPhenopacketTest {
         Assertions.assertEquals(covidCase.phenopacketSchemaVersion, metaData.getPhenopacketSchemaVersion());
     }
 
-    /*
-     * Test to check if a phenopacket can be created
-     * In this case, metadata is no protected
-     */
-
     @Test
     void checkPhenopacketCreation() throws IOException, GeneralSecurityException, URISyntaxException{
         
         // Create an arbitrary identifier
         String phenopacketID = SecurePhenopacket.generatePhenopacketId();
         Phenopacket covidPhenopacket = covidCase.covid19Phenopacket();
-
-        
+  
         // Create the subject
         Individual subject = covidCase.createCovidSubject();
 
@@ -164,15 +137,12 @@ public class createPhenopacketTest {
         Phenopacket phenopacket = SecurePhenopacket.createPhenopacket(phenopacketID, subject, phenotypicFeatures, metaData, diseases, medicalActions);
 
         Assertions.assertEquals(covidPhenopacket, phenopacket);
-
-
     }
 
     @Test
     void checkJsonExportation() throws IOException, GeneralSecurityException, URISyntaxException{
         Phenopacket phenopacket = covidCase.covid19Phenopacket();
-        SecurePhenopacket.exportPhenopacket(phenopacket);
-        
+        SecurePhenopacket.exportPhenopacket(phenopacket);  
     }
 
     @Test
