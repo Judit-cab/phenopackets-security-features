@@ -37,7 +37,8 @@
             <groupId>org.phenopackets.secure.schema</groupId>
             <artifactId>phenopackets-secure-schema</artifactId>
             <version>1.0.0</version>
-            <scope>compile</scope>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/phenopackets-secure-schema-1.0.0.jar</systemPath>
         </dependency>
 
         <dependency>

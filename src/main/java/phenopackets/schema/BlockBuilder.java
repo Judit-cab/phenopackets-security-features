@@ -117,7 +117,7 @@ public class BlockBuilder {
         // Create age element
         Age age = Age.newBuilder().setIso8601Duration(cipherAge).build();
 
-        // Create and return TimeELement
+        // Create and return TimeElement
         return TimeElement.newBuilder().setAge(age).build();
     }
 
@@ -258,6 +258,7 @@ public class BlockBuilder {
         byte[] ageBytes = Base64.getDecoder().decode(isoDuration);
         byte[] age = HybridEncryption.hybridEncryption(MODE_DEC, ageBytes, context);
 
+        // Return the Age value as String 
         return new String(age);
     }
 

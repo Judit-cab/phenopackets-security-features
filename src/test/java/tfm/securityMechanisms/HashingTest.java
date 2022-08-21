@@ -1,4 +1,4 @@
-package tfm.phenopackets_security_features;
+package tfm.securityMechanisms;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -47,7 +47,6 @@ public class HashingTest {
         // Compare both hashes to check that the storage is done correctly
         Assertions.assertEquals(hash1, hash1File);
         Assertions.assertEquals(hash2, hash2File);
-
     }
 
     @Test
@@ -66,7 +65,6 @@ public class HashingTest {
 
         // Compare both hashes to check that the storage is done correctly
         Assertions.assertEquals(hash, hashFile);
-
     }
 
     @Test
@@ -97,7 +95,6 @@ public class HashingTest {
         // Compare both hashes to check that the storage is done correctly
         Assertions.assertEquals(hash1, hash1File);
         Assertions.assertEquals(hash2, hash2File);
-
     }
 
     @Test
