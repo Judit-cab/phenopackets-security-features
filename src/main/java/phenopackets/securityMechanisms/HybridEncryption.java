@@ -19,10 +19,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.security.GeneralSecurityException;
 import java.util.Base64;
-import java.util.List;
 
 public class HybridEncryption {
     private static final String SK_FILE = "sk_hybridEnc.json"; 
@@ -43,11 +41,11 @@ public class HybridEncryption {
 
         // Generate  new private key
         KeysetHandle privateKey = KeysetHandle.generateNew(KeyTemplates.get(ALGORITHM));
-        CleartextKeysetHandle.write(privateKey, JsonKeysetWriter.withPath(externalResource.getFileFromResource(SK_FILE).getAbsolutePath()));
+        CleartextKeysetHandle.write(privateKey, JsonKeysetWriter.withPath(externalResource.createNewFile(SK_FILE).getAbsolutePath()));
 
         // Obtain the public key 
         KeysetHandle publicKey = privateKey.getPublicKeysetHandle();
-        CleartextKeysetHandle.write(publicKey, JsonKeysetWriter.withPath(externalResource.getFileFromResource(PK_FILE).getAbsolutePath()));
+        CleartextKeysetHandle.write(publicKey, JsonKeysetWriter.withPath(externalResource.createNewFile(PK_FILE).getAbsolutePath()));
     }
 
     /**
@@ -60,6 +58,14 @@ public class HybridEncryption {
      */
     private static byte[] hybridEncryption(byte[] element, byte[] contextInfo) throws GeneralSecurityException, URISyntaxException{
         
+        // Input validation
+        if (element == null || element.length == 0){
+            throw new NullPointerException();
+        }
+        if (contextInfo == null || contextInfo.length == 0){
+            throw new NullPointerException();
+        }
+
         // Read the keyset into a KeysetHandle
         KeysetHandle handle = null;
         try {
@@ -91,12 +97,20 @@ public class HybridEncryption {
      */
     private static byte[] hybridDecryption(byte[] cipher, byte[] contextInfo) throws GeneralSecurityException, URISyntaxException{
         
+        // Input validation
+        if (cipher == null || cipher.length == 0){
+            throw new NullPointerException();
+        }
+        if (contextInfo == null || contextInfo.length == 0){
+            throw new NullPointerException();
+        }
+
         // Read the keyset into a KeysetHandle
         KeysetHandle handle = null;
         try {
             handle = CleartextKeysetHandle.read(JsonKeysetReader.withFile(externalResource.getFileFromResource(SK_FILE)));
         } catch (GeneralSecurityException | IOException ex) {
-            System.err.println("Error: " + ex);
+            System.err.println("Process error: " + ex);
         }
 
         // Get primitive related to the decryption
@@ -104,8 +118,9 @@ public class HybridEncryption {
         try {
           decryptor = handle.getPrimitive(HybridDecrypt.class);
         } catch (GeneralSecurityException ex) {
-          System.err.println("Cannot create primitive, got error: " + ex);
+          System.err.println("Process error: " + ex);
         }
+
         // Decrypt and return the plaintext
         byte[] plaintext = decryptor.decrypt(cipher, contextInfo);
         return plaintext;
@@ -123,15 +138,13 @@ public class HybridEncryption {
      */
     public static byte[] hybridEncryption(String mode, byte[] element, byte[] context) throws IOException, GeneralSecurityException, URISyntaxException{
         
-        byte[] res;
+        byte[] result;
         // Initialize the hybrid configuration
         HybridConfig.register();
         // Check if exist the keyset
         File hybridFile = externalResource.getFileFromResource(SK_FILE);
-        
-        List<String> lines = Files.readAllLines(hybridFile.toPath());
         // If not, create the keyset for the process
-        if (lines.size()==0) {
+        if (hybridFile.length()==0) {
             createKeySet();
         }
 
@@ -142,29 +155,67 @@ public class HybridEncryption {
 
         // If the mode is encrypt then call function hybridEncryption, otherwise call hybridDecryption
         if (mode.equals("encrypt")) {
-            res = hybridEncryption(element,context);
-            return res;
+            result = hybridEncryption(element,context);
+            return result;
         }else{
-            res = hybridDecryption(element, context);
-            return res;
+            result = hybridDecryption(element, context);
+            return result;
         } 
     }
 
+
+    /**
+     * Method to save the corresponding encrypted bytes into a file
+     * @param elementBytes required - the cipherBytes
+     * @param elementName required - element that was encrypted
+     * @param fileName required - file where will be stored
+     * @throws URISyntaxException
+     * @throws ParseException
+     */
     public static void saveInFile(byte[] elementBytes,String elementName, String fileName) throws URISyntaxException, ParseException{
     
-        String ptBytes = new String(Base64.getEncoder().encode(elementBytes), StandardCharsets.UTF_8);
+        // Input validation
+        if (elementBytes == null || elementBytes.length == 0){
+            throw new NullPointerException();
+        }
+        if (elementName == null || elementName.length()==0){
+            throw new NullPointerException();
+        }
+        if (fileName == null || fileName.length()==0){
+            throw new NullPointerException();
+        }
         
-        externalResource.createJSONFile(fileName, ptBytes, elementName);
-
+        // Encoding bytes
+        String ptBytes = new String(Base64.getEncoder().encode(elementBytes), StandardCharsets.UTF_8);
+        // Create new JSON file
+        externalResource.createJSONFile(fileName+FILE_FORMAT, ptBytes, elementName);
     }
 
+
+    /**
+     * Method to retrieve the stored cypherbytes
+     * @param elementName required - element that was encrypted
+     * @param fileName required - file where will be stored
+     * @return the cipherbytes
+     * @throws URISyntaxException
+     * @throws IOException
+     * @throws GeneralSecurityException
+     */
     public static byte[] getCipherBytes(String elementName, String fileName) throws URISyntaxException, IOException, GeneralSecurityException{
         
-        byte[] elementBytes = null;
-        // Get the file with the signature
-        File signaturesFile = externalResource.getFileFromResource(fileName+FILE_FORMAT);
+         // Input validation
+        if (elementName == null || elementName.length()==0){
+            throw new NullPointerException();
+        }
+        if (fileName == null || fileName.length()==0){
+            throw new NullPointerException();
+        }
         
-        try (FileReader reader = new FileReader(signaturesFile)){
+        byte[] cipherBytes = null;
+        // Get the file 
+        File hybridFile = externalResource.getFileFromResource(fileName+FILE_FORMAT);
+        
+        try (FileReader reader = new FileReader(hybridFile)){
             JsonReader js =  new JsonReader(reader);
             js.beginObject();
             
@@ -175,7 +226,7 @@ public class HybridEncryption {
                 if (field.equals(elementName)) {
                     String ptBytes = js.nextString();
                     // Get the element Bytes from the file
-                    elementBytes = Base64.getDecoder().decode(ptBytes);
+                    cipherBytes = Base64.getDecoder().decode(ptBytes);
                 }else {
                     js.skipValue();
                 }
@@ -185,8 +236,7 @@ public class HybridEncryption {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        
-        return elementBytes;
+        return cipherBytes;
     }
     
 }

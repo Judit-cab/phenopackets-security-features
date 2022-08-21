@@ -19,7 +19,7 @@ public class ExternalResources {
 
     JSONObject js = new JSONObject();
     
-    //https://mkyong.com/java/java-read-a-file-from-resources-folder/
+
     // get a file from the resources folder
     // works everywhere, IDEA, unit test and JAR file.
 
@@ -32,12 +32,12 @@ public class ExternalResources {
 
         URL resource = getClass().getClassLoader().getResource(fileName);
         if (resource == null) {
-            throw new IllegalArgumentException("file not found! " + fileName);
+            System.out.println("File not found, new one will be created");
+            return createNewFile(fileName);
         } else {
             // failed if files have whitespaces or special characters
             return new File(resource.toURI());
         }
-
     }
 
     public String getNewPath(String fileName, String format) throws URISyntaxException{
@@ -48,16 +48,20 @@ public class ExternalResources {
         return path;
     }
 
-    public URL getURL(String fileName){
-        URL resource = getClass().getClassLoader().getResource(fileName);
-        return resource;
+    public File createNewFile(String fileName) throws URISyntaxException{
+        
+        URL resource = getClass().getClassLoader().getResource(DEFAULT_PATH);
+        String path = resource.toString().replace(DEFAULT_PATH, fileName).replace("file:", "");
+        File newFile = new File(path);
+
+        return newFile;
     }
 
       public void addHashToFile(String fileName, byte[] hash, String element) throws IOException, URISyntaxException{
         try{ 
             
-            String path = getNewPath(fileName, FORMAT_TXT);
-            File hashFile = new File(path);
+            //String path = getNewPath(fileName, FORMAT_TXT);
+            File hashFile = getFileFromResource(fileName);
 
             BufferedWriter fileWriter = new BufferedWriter(new FileWriter(hashFile,true));
             
@@ -72,8 +76,7 @@ public class ExternalResources {
 
       public void createJSONFile(String fileName, String bytes, String element) throws URISyntaxException, ParseException{
         try {
-            String path = getNewPath(fileName,FORMAT_JSON);
-            File jsonFile = new File(path);
+            File jsonFile = createNewFile(fileName);
 
             // Get the stored json Obj
             if (jsonFile.length()==0) {
@@ -82,7 +85,7 @@ public class ExternalResources {
                 fileWriter.write(js.toJSONString());
                 fileWriter.close();
             }else{
-                JSONObject js = getJSONFromFile(path);
+                JSONObject js = getJSONFromFile(jsonFile);
                 BufferedWriter fileWriter = new BufferedWriter(new FileWriter(jsonFile));
                 js.appendField(element, bytes);
                 fileWriter.write(js.toJSONString());
@@ -94,9 +97,8 @@ public class ExternalResources {
         }
       }
       
-      public JSONObject getJSONFromFile(String path) throws ParseException, IOException{
+      public JSONObject getJSONFromFile(File jsonFile) throws ParseException, IOException{
         JSONObject js = new JSONObject();
-        File jsonFile = new File(path);
 
         try(FileReader reader = new FileReader(jsonFile)){
             JsonReader jsReader =  new JsonReader(reader);
@@ -111,9 +113,7 @@ public class ExternalResources {
         }catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-
         return js;
-
       }
 
 }
