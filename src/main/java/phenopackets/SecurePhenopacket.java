@@ -28,6 +28,7 @@ import com.nimbusds.jose.shaded.json.parser.ParseException;
 import phenopackets.securityMechanisms.DigitalSignature;
 import phenopackets.securityMechanisms.ExternalResources;
 import phenopackets.securityMechanisms.HybridEncryption;
+import phenopackets.schema.MainElements;
 
 import org.phenopackets.secure.schema.Phenopacket;
 

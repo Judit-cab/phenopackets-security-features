@@ -1,4 +1,4 @@
-package phenopackets;
+package phenopackets.schema;
 
 import org.phenopackets.secure.schema.core.*;
 

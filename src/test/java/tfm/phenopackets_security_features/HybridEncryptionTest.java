@@ -13,11 +13,11 @@ import org.phenopackets.secure.schema.core.TimeElement;
 
 import com.nimbusds.jose.shaded.json.parser.ParseException;
 
-import phenopackets.MainElements;
 import phenopackets.SecurePhenopacket;
 import phenopackets.examples.Covid19;
 import phenopackets.securityMechanisms.HybridEncryption;
-import phenopackets.BlockBuilder;
+import phenopackets.schema.BlockBuilder;
+import phenopackets.schema.MainElements;
 
 public class HybridEncryptionTest {
 

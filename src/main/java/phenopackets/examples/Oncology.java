@@ -21,8 +21,8 @@ import org.phenopackets.secure.schema.core.VitalStatus.Status;
 
 import com.google.protobuf.Timestamp;
 
-import phenopackets.BlockBuilder;
-import phenopackets.MainElements;
+import phenopackets.schema.BlockBuilder;
+import phenopackets.schema.MainElements;
 
 public class Oncology {
 
