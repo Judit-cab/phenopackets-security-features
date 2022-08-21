@@ -14,8 +14,6 @@ import com.nimbusds.jose.shaded.json.parser.ParseException;
 public class ExternalResources {
 
     private static final String DEFAULT_PATH = "readME.txt";
-    private static final String FORMAT_TXT =".txt";
-    private static final String FORMAT_JSON = ".json";
 
     JSONObject js = new JSONObject();
 

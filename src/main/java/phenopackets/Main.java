@@ -1,4 +1,4 @@
-/* package phenopackets;
+package phenopackets;
 
 import picocli.CommandLine;
 
@@ -14,4 +14,3 @@ public class Main {
         System.exit(exitCode);
     }
 }
- */

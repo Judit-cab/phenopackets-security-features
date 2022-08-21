@@ -42,18 +42,18 @@ public class HashingCommand implements Callable<Integer> {
             if(element.contains("disease") || element.contains("Disease")){
                Disease disease = phenopacket.getDiseases(index);
                String hash = Hashing.computeDiseaseHash(disease, phenopacketId);
-               return 1;
+               System.out.printf("%s %n", hash);
             }
 
             if(element.contains("PhenotypicFeature") || element.contains("phenotypic feature")){
                 PhenotypicFeature phenotypicFeature= phenopacket.getPhenotypicFeatures(index);
                 String hash = Hashing.computePhenotypicFeatureHash(phenotypicFeature, phenopacketId);
-                return 1;
+                System.out.printf("%s %n", hash);
             }
             if(element.contains("MedicalActions") || element.contains("medical actions")){
                 MedicalAction medicalAction = phenopacket.getMedicalActions(index);
                 String hash = Hashing.computeMedicalAction(medicalAction, phenopacketId, medicalActionName);
-                return 1;
+                System.out.printf("%s %n", hash);
             }
         }
 
@@ -64,19 +64,19 @@ public class HashingCommand implements Callable<Integer> {
                 Disease disease = phenopacket.getDiseases(index);
                 storedHash= Hashing.getHash(phenopacketId, disease.getTerm().getLabel());
                 isCorrect = Hashing.checkHash(disease.toByteArray(), storedHash);
-                return 1;
+                System.out.printf("%s %n", isCorrect);
             }
             if(element.contains("PhenotypicFeature") || element.contains("phenotypic feature")){
                 PhenotypicFeature phenotypicFeature= phenopacket.getPhenotypicFeatures(index);
                 storedHash = Hashing.getHash(phenopacketId, phenotypicFeature.getType().getLabel());
                 isCorrect = Hashing.checkHash(phenotypicFeature.toByteArray(), storedHash);
-                return 1;
+                System.out.printf("%s %n", isCorrect);
             }
             if(element.contains("MedicalActions") || element.contains("medical actions")){
                 MedicalAction medicalAction = phenopacket.getMedicalActions(index);
                 storedHash = Hashing.getHash(phenopacketId, medicalActionName);
                 isCorrect = Hashing.checkHash(medicalAction.toByteArray(), storedHash);
-                return 1;
+                System.out.printf("%s %n", isCorrect);
             }
 
         }

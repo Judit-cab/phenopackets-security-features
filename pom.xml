@@ -33,7 +33,7 @@
 
     <dependencies>
         <!-- Dependencies -->
-        <dependency>
+        <dependency> 
             <groupId>org.phenopackets.secure.schema</groupId>
             <artifactId>phenopackets-secure-schema</artifactId>
             <version>1.0.0</version>
@@ -64,8 +64,12 @@
             <version>3.21.2</version>
             <scope>compile</scope>
         </dependency>
-          
-    
+
+        <dependency>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>4.6.3</version>
+        </dependency>
     
         <!-- Testing dependencies-->
         <dependency>
