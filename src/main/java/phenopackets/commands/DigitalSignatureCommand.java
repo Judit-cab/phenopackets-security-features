@@ -9,15 +9,15 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
-@Command(name="digitalSignature", mixinStandardHelpOptions = true)
+@Command(name="signature", mixinStandardHelpOptions = true)
 public class DigitalSignatureCommand implements Callable<Integer> {
 
     @Parameters(index = "0", description = "Input phenopacketID")
     private String input;
-    @Option(names={"--sign", "-s"})
+    @Option(names={"--sign", "-s"}, description = "To sign the phenopacket")
     public boolean signElement = false;
 
-    @Option(names={"--verify", "-v"})
+    @Option(names={"--verify", "-v"}, description = "To verify the phenopacket")
     public boolean verifyElement = false;
 
     @Override
@@ -31,12 +31,10 @@ public class DigitalSignatureCommand implements Callable<Integer> {
        Phenopacket phenopacket = SecurePhenopacket.importPhenopacket(input);
         if(signElement){
             SecurePhenopacket.signPhenopacket(phenopacket);
-            return 1;
         }
 
         if(verifyElement){
             SecurePhenopacket.verifyPhenopacket(phenopacket);
-            return 1;
         }
         return 0;
     }

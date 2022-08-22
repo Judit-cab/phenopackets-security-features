@@ -78,8 +78,8 @@ public class HybridEncryptionTest {
         MetaData metaData = phenopacket.getMetaData();
 
         // This method provides hybrid encryption
-        MetaData metaDataProtectingCreator = MainElements.protectedMetaDataCreator(metaData.getCreated(), metaData.getCreatedBy(), metaData.getSubmittedBy(), metaData.getResourcesList(), metaData.getUpdatesList(), metaData.getPhenopacketSchemaVersion(), phenopacketId.getBytes());
-        
+        //MetaData metaDataProtectingCreator = MainElements.protectedMetaDataCreator(metaData.getCreated(), metaData.getCreatedBy(), metaData.getSubmittedBy(), metaData.getResourcesList(), metaData.getUpdatesList(), metaData.getPhenopacketSchemaVersion(), phenopacketId.getBytes());
+        MetaData metaDataProtectingCreator = MainElements.protectedMetaDataCreator(metaData, phenopacketId.getBytes());
         System.out.println("The value of the encrypted createdBy is:");
         System.out.println(metaDataProtectingCreator.getCreatedBy());
 

@@ -20,13 +20,13 @@ public class HashingCommand implements Callable<Integer> {
     private String phenopacketId;
     @Option(names="--hash")
     public boolean computeHash = false;
-    @Option(names={"--check", "-c"})
+    @Option(names={"--check", "-c"}, description = "To check if the hash remains the same")
     public boolean checkHash = false;
-    @Option(names={"--element", "-e"})
+    @Option(names={"--element", "-e"}, description = "Indicates the element to compute the hash")
     private String element;
-    @Option(names={"--index", "-i"})
+    @Option(names={"--index", "-i"}, description = "Indicates the specific element from a list")
     private int index;
-    @Option(names={"--medical action", "-ma"})
+    @Option(names={"--medical action", "-ma"}, description = "Specify the medical action")
     private String medicalActionName;
 
     @Override

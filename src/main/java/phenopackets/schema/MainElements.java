@@ -217,21 +217,33 @@ public class MainElements {
      * @throws GeneralSecurityException
      * @throws URISyntaxException
      */
-    public static MetaData protectedMetaDataCreator(Timestamp created, String createdBy, String submittedBy, List<Resource> resources, List<Update> updates, String schemaVersion, byte[] context) throws IOException, GeneralSecurityException, URISyntaxException{
+    // public static MetaData protectedMetaDataCreator(Timestamp created, String createdBy, String submittedBy, List<Resource> resources, List<Update> updates, String schemaVersion, byte[] context) throws IOException, GeneralSecurityException, URISyntaxException{
         
+    //     // Use of hybridEncryption to protect the creator of the phenopacket
+    //     byte[] cipher = HybridEncryption.hybridEncryption(MODE_ENC, createdBy.getBytes(), context);
+    //     String cipherCreatedBy = Base64.getEncoder().encodeToString(cipher);
+       
+    //     return MetaData.newBuilder()
+    //         .setCreated(created)
+    //         .setCreatedBy(cipherCreatedBy)
+    //         .setSubmittedBy(submittedBy)
+    //         .addAllResources(resources)
+    //         .addAllUpdates(updates)
+    //         .setPhenopacketSchemaVersion(schemaVersion)
+    //         .build(); 
+    // }
+
+    public static MetaData protectedMetaDataCreator(MetaData metaData, byte[] context) throws IOException, GeneralSecurityException, URISyntaxException{
+        String createdBy = metaData.getCreatedBy();
+        metaData = MetaData.newBuilder(metaData).clearCreatedBy().build();
+
         // Use of hybridEncryption to protect the creator of the phenopacket
         byte[] cipher = HybridEncryption.hybridEncryption(MODE_ENC, createdBy.getBytes(), context);
         String cipherCreatedBy = Base64.getEncoder().encodeToString(cipher);
        
-        return MetaData.newBuilder()
-            .setCreated(created)
-            .setCreatedBy(cipherCreatedBy)
-            .setSubmittedBy(submittedBy)
-            .addAllResources(resources)
-            .addAllUpdates(updates)
-            .setPhenopacketSchemaVersion(schemaVersion)
-            .build(); 
+        return MetaData.newBuilder().setCreatedBy(cipherCreatedBy).build(); 
     }
+    
 
      /**
      * Function to create protected metadata element 

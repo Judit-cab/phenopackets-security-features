@@ -178,7 +178,7 @@ public class SecurePhenopacket {
         try{
             String jsonString = JsonFormat.printer().includingDefaultValueFields().print(phenopacket);
             System.out.println(jsonString);
-            String path = externalResource.getNewPath(phenopacket.getId(),".json" );
+            String path = externalResource.getNewPath("P-"+phenopacket.getId(),".json" );
             File phenopacketJson = new File(path);
 
             BufferedWriter fileWriter = new BufferedWriter(new FileWriter(phenopacketJson));     

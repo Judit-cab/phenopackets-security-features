@@ -14,6 +14,7 @@ import com.nimbusds.jose.shaded.json.parser.ParseException;
 public class ExternalResources {
 
     private static final String DEFAULT_PATH = "readME.txt";
+    private static final String FORMAT_TXT = ".txt";
 
     JSONObject js = new JSONObject();
 
@@ -69,7 +70,7 @@ public class ExternalResources {
     public void addHashToFile(String fileName, byte[] hash, String element) throws IOException, URISyntaxException{
         try{
             //String path = getNewPath(fileName, FORMAT_TXT);
-            File hashFile = getFileFromResource(fileName);
+            File hashFile = getFileFromResource(fileName+FORMAT_TXT);
 
             BufferedWriter fileWriter = new BufferedWriter(new FileWriter(hashFile,true));
             
