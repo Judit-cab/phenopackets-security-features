@@ -68,7 +68,7 @@ public class HybridEncryptionTest {
      * Value to check: createdBy = "Judit C.";
      */
     @Test 
-    void createMetadaProtectingCreator() throws IOException, GeneralSecurityException, URISyntaxException{
+    void createMetaDataProtectingCreator() throws IOException, GeneralSecurityException, URISyntaxException{
 
         // Get Covid19 Phenopacket 
         Phenopacket phenopacket = covidCase.covid19Phenopacket();
