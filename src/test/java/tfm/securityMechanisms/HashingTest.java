@@ -1,6 +1,6 @@
 package tfm.securityMechanisms;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -120,8 +120,8 @@ public class HashingTest {
         boolean res2 = Hashing.checkHash(phenotypicFeature2.toByteArray(), storedHash2);
 
         // If both hashes are equal, the function returns True
-        assertTrue(res1);
-        assertTrue(res2);
+        assertEquals(true, res1);
+        assertEquals(true, res2);
     }
 }
     
