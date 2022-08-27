@@ -16,6 +16,10 @@ public class DigitalSignatureTest {
 
     Covid19 covidCase = new Covid19();
 
+    /*
+     * TEST: Sign and verify Phenopacket schema
+     * The values used can be found at covid19 class
+     */
     @Test
     void testDigitalSignature() throws IOException, URISyntaxException, ParseException, GeneralSecurityException{
         
@@ -23,8 +27,9 @@ public class DigitalSignatureTest {
         String phenopacketId = covidPhenopacket.getId();
 
         System.out.println("The unique identifier is :" + phenopacketId);
-        
+        // Function that signs the Phenopacket and save the signature in a JSON file
         SecurePhenopacket.signPhenopacket(covidPhenopacket);
+        // Function that retrieves the signature from the file and verifies it
         SecurePhenopacket.verifyPhenopacket(covidPhenopacket);
 
     }   
