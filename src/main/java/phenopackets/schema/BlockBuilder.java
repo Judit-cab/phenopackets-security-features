@@ -1,7 +1,6 @@
 package phenopackets.schema;
 
 import org.phenopackets.secure.schema.core.*;
-
 import com.google.protobuf.Timestamp;
 
 import phenopackets.securityMechanisms.HybridEncryption;
@@ -26,9 +25,9 @@ public class BlockBuilder {
 
     /**
      * Method to create a new Ontology Class
-     * @param id required 
-     * @param label required
-     * @return Ontology Class
+     * @param id required - CURIE identifier
+     * @param label required - Ontology name
+     * @return Ontology Class element
      */
     public static OntologyClass createOntologyClass (String id, String label){
         
@@ -40,12 +39,12 @@ public class BlockBuilder {
 
     /**
      * Method to create a new Resource
-     * @param id required 
-     * @param name required 
-     * @param namespace required 
-     * @param url required 
-     * @param version required 
-     * @param iri required 
+     * @param id required - irentifier
+     * @param name required - resource nam
+     * @param namespace required - resource namespace
+     * @param url required - Uniform Resource Locator
+     * @param version required - resource version
+     * @param iri required - Internationalized Resource Identifier
      * @return Resource element
      */
     public static Resource createResource (String id, String name, String namespace, String url, String version, String iri){
@@ -60,6 +59,12 @@ public class BlockBuilder {
             .build();
     }
 
+    /**
+     * Method to create a new Evidence
+     * @param codeId required - evidence type
+     * @param label required - name of the evidence
+     * @return Evidence element
+     */
     public static Evidence createEvidence(String codeId, String label){
         OntologyClass evidenceCode = createOntologyClass(codeId, label); 
         
@@ -70,8 +75,8 @@ public class BlockBuilder {
 
     /**
      * Method to set new Quantity of items such as medications.
-     * @param unit required
-     * @param value required
+     * @param unit required - kind of unit
+     * @param value required - quantity value
      * @return  Quantity element
      */
     public static Quantity setQuantity(OntologyClass unit, Double value){
@@ -85,9 +90,9 @@ public class BlockBuilder {
 
     /**
      * Method to set Dose Interval of a medication
-     * @param quantity required
-     * @param schedule required
-     * @param interval required
+     * @param quantity required - quantity element
+     * @param schedule required - how often are administered
+     * @param interval required - interval time of dosage
      * @return Dose Intarval element
      */
     public static DoseInterval setDoseInterval (Quantity quantity, OntologyClass schedule, TimeInterval interval){
@@ -102,8 +107,8 @@ public class BlockBuilder {
 
     /**
      * Method to create a new TimeElement that includes the Age element
-     * @param isoDuration required
-     * @param context required being the Phenopacket ID
+     * @param isoDuration required - iso8601
+     * @param context required - the Phenopacket ID
      * @return Time Element
      * @throws IOException
      * @throws GeneralSecurityException
@@ -123,7 +128,7 @@ public class BlockBuilder {
 
     /**
      * Method to create a new Timestamp
-     * @param isoDate required 
+     * @param isoDate required - iso8601 date time
      * @return a timestamp element
      */
     public static Timestamp createTimestamp(String isoDate){
@@ -140,7 +145,7 @@ public class BlockBuilder {
 
     /**
      * Method to create a new TimeELement that includes a Timestamp element
-     * @param isoDate required
+     * @param isoDate required - iso8601 date time
      * @return Time Element
      */
     public static TimeElement creaTimeElementTimestamp(String isoDate){
@@ -149,13 +154,12 @@ public class BlockBuilder {
         Timestamp timestamp = createTimestamp(isoDate);
         // Create and return TimeELement
         return TimeElement.newBuilder().setTimestamp(timestamp).build();
-
     }
 
     /**
      * Create Time Interval element
-     * @param isoDateStart required
-     * @param isoDateEnd required
+     * @param isoDateStart required - iso8601 date time
+     * @param isoDateEnd required - iso8601 date time
      * @return
      */
     public static TimeInterval createTimeInterval(String isoDateStart, String isoDateEnd){
@@ -173,10 +177,10 @@ public class BlockBuilder {
 
 
     /**
-     * Method to set the action Procedure
-     * @param code required
-     * @param bodySite
-     * @param performed
+     * Method to set the Procedure action 
+     * @param code required - procedure perfomed
+     * @param bodySite - in which part of the body
+     * @param performed - time when it was performed
      * @return new Procedure action
      */
     public static Procedure setProcedure (OntologyClass code, OntologyClass bodySite, TimeElement performed){
@@ -189,10 +193,10 @@ public class BlockBuilder {
     }
 
     /**
-     * Method to set the action Treatment
-     * @param agent required
-     * @param adminRoute recommended
-     * @param doseIntervals recommended
+     * Method to set the Treatment action
+     * @param agent required - drug 
+     * @param adminRoute recommended - how it was administered
+     * @param doseIntervals recommended - dosages
      * @return new Treatment action
      */
     public static Treatment setTreatment (OntologyClass agent, OntologyClass adminRoute, List<DoseInterval> doseIntervals){
@@ -205,11 +209,11 @@ public class BlockBuilder {
     }
 
     /**
-     * Method to set the action Radiation Therapy
-     * @param modality required
-     * @param bodySite required
-     * @param dosage required 
-     * @param fractions required
+     * Method to set the Radiation Therapy action
+     * @param modality required - modality of RT
+     * @param bodySite required - anatomical site
+     * @param dosage required - total dose
+     * @param fractions required - number of fractions
      * @return new RadiationTherapy action
      */
     public static RadiationTherapy setRadiationTheraphy(OntologyClass modality, OntologyClass bodySite, int dosage, int fractions){
@@ -223,10 +227,10 @@ public class BlockBuilder {
     }
 
     /**
-     * Method to set the action Therapeutic Regimen 
-     * @param id required
-     * @param startTime recommended
-     * @param endTime recommended 
+     * Method to set the Therapeutic Regimen action
+     * @param id required - identifier
+     * @param startTime recommended - when it started
+     * @param endTime recommended - when it ended
      * @param status required - Values : Unkown, started, completed and discontinued
      * @return new TherapeuticRegimen action
      */
@@ -241,7 +245,7 @@ public class BlockBuilder {
 
     /**
      * Method to obtain the age from the TimeElement object
-     * @param timeElement required
+     * @param timeElement required - age value
      * @param context required, being the Phenopacket ID
      * @return Value of age
      * @throws IOException
@@ -254,7 +258,7 @@ public class BlockBuilder {
         Age ageElement = timeElement.getAge();
         String isoDuration = ageElement.getIso8601Duration();
         
-        //Decrypt age
+        // Decrypt age
         byte[] ageBytes = Base64.getDecoder().decode(isoDuration);
         byte[] age = HybridEncryption.hybridEncryption(MODE_DEC, ageBytes, context);
 

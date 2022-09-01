@@ -85,8 +85,8 @@ public class HashingTest {
         String treatmentName = treatment.getTreatment().getAgent().getLabel();
         
         // Compute hash
-        String hash1 = Hashing.computeMedicalAction(procedure, phenopacketId, procedureName);
-        String hash2 = Hashing.computeMedicalAction(treatment, phenopacketId, treatmentName);
+        String hash1 = Hashing.computeMedicalActionHash(procedure, phenopacketId, procedureName);
+        String hash2 = Hashing.computeMedicalActionHash(treatment, phenopacketId, treatmentName);
         
         // Retrieve hashes from the file
         String hash1File = Hashing.getHash(phenopacketId, procedureName);

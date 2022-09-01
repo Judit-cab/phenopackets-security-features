@@ -31,6 +31,5 @@ public class DigitalSignatureTest {
         SecurePhenopacket.signPhenopacket(covidPhenopacket);
         // Function that retrieves the signature from the file and verifies it
         SecurePhenopacket.verifyPhenopacket(covidPhenopacket);
-
     }   
 }

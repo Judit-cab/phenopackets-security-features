@@ -20,7 +20,7 @@ public class ExternalResources {
 
     /**
      * Method to get file from resources folder. In case the file doesn't exist, the method creates a new one
-     * @param fileName
+     * @param fileName required - name of the file
      * @return the required file
      * @throws URISyntaxException
      */
@@ -34,14 +34,6 @@ public class ExternalResources {
             // failed if files have whitespaces or special characters
             return new File(resource.toURI());
         }
-    }
-
-    public String getNewPath(String fileName, String format) throws URISyntaxException{
-        
-        URL resource = getClass().getClassLoader().getResource(DEFAULT_PATH);
-        String path = resource.toString().replace(DEFAULT_PATH, fileName+format).replace("file:", "");
-
-        return path;
     }
 
     /**
@@ -69,7 +61,6 @@ public class ExternalResources {
      */
     public void addHashToFile(String fileName, byte[] hash, String element) throws IOException, URISyntaxException{
         try{
-            //String path = getNewPath(fileName, FORMAT_TXT);
             File hashFile = getFileFromResource(fileName+FORMAT_TXT);
 
             BufferedWriter fileWriter = new BufferedWriter(new FileWriter(hashFile,true));
@@ -99,7 +90,7 @@ public class ExternalResources {
         try {
             File jsonFile = createNewFile(fileName);
 
-            // Get the stored json Obj
+            // Get the stored JSON Obj
             if (jsonFile.length()==0) {
                 BufferedWriter fileWriter = new BufferedWriter(new FileWriter(jsonFile));
                 js.appendField(element, bytes);

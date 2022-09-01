@@ -49,12 +49,12 @@ public class MainElements {
             secureRandom = new SecureRandom();
         }
 
-        // Get a random Number of 6 digits
+        // Get a random number of 6 digits
         for(int i=0; i<6; i++){
             randomNumber += String.valueOf(secureRandom.nextInt(9));
 
         }
-        // Individual identifier beggins with P
+        // Individual identifier begins with P
         String id = "P"+randomNumber;
 
         return id;
@@ -79,7 +79,7 @@ public class MainElements {
         // Check timeElement is actually an age element
         if (!timeAtLastEncounter.hasAge()){
             System.out.println("Incorret TimeElement");
-            System.exit(0);
+            throw new IllegalArgumentException();
         }
 
         // Create an arbitrary identifier
@@ -91,7 +91,6 @@ public class MainElements {
             .setVitalStatus(vitalStatus)
             .setKaryotypicSexValue(karyotypicSex)
             .build();
-
     }
 
     /**
@@ -132,10 +131,9 @@ public class MainElements {
     public static Disease createDisease (OntologyClass term, boolean excluded, List<OntologyClass> diseaseStages, OntologyClass primarySite, TimeElement onset){
         
         // Check timeElement is actually an age element
-
         if (!onset.hasAge()){
             System.out.println("Incorret TimeElement");
-            System.exit(1);
+            throw new IllegalArgumentException();
         }
 
         return Disease.newBuilder()
@@ -144,12 +142,11 @@ public class MainElements {
             .addAllDiseaseStage(diseaseStages)
             .setPrimarySite(primarySite)
             .setOnset(onset)
-            .build();
-        
+            .build(); 
     }
 
     /**
-     *  Function to create a new Disease element
+     * Function to create a new Disease element
      * @param term required - represents the disease
      * @param excluded optional - boolean to indicate if was observed
      * @param diseaseStages optional - List of stages
@@ -158,13 +155,12 @@ public class MainElements {
      * @param onset optional - represent the age of onset of the disease
      * @return Disease element
      */
-    public static Disease createOncologicaldisease(OntologyClass term, boolean excluded, List<OntologyClass> diseaseStages, List<OntologyClass>tnmFindings, OntologyClass primarySite, TimeElement onset){
+    public static Disease createOncologicalDisease(OntologyClass term, boolean excluded, List<OntologyClass> diseaseStages, List<OntologyClass>tnmFindings, OntologyClass primarySite, TimeElement onset){
         
         // Check timeElement is actually an age element
-
         if (!onset.hasAge()){
             System.out.println("Incorret TimeElement");
-            System.exit(1);
+            throw new IllegalArgumentException();
         }
 
         return Disease.newBuilder()
@@ -175,8 +171,8 @@ public class MainElements {
             .setPrimarySite(primarySite)
             .setOnset(onset)
             .build();
-        
     }
+
     /**
      * Function to create new MetaData element 
      * @param created optional - time was created
@@ -203,36 +199,15 @@ public class MainElements {
     }
 
     /**
-     * Method to create a MetaData element 
+     * Method to encrypt the MetaData creator 
      * protecting the name of the person who creates the Phenopacket
-     * @param created optional - time was created
-     * @param createdBy optional - person who created the phenopacket
-     * @param submittedBy optional - person who submitted the phenopacket
-     * @param resources optional - List of ontologies used
-     * @param updates optional - List of updates
-     * @param schemaVersion optional 
+     * @param metaData required - MetaData element
      * @param context required to encrypt the data
-     * @return
+     * @return MetaData element
      * @throws IOException
      * @throws GeneralSecurityException
      * @throws URISyntaxException
      */
-    // public static MetaData protectedMetaDataCreator(Timestamp created, String createdBy, String submittedBy, List<Resource> resources, List<Update> updates, String schemaVersion, byte[] context) throws IOException, GeneralSecurityException, URISyntaxException{
-        
-    //     // Use of hybridEncryption to protect the creator of the phenopacket
-    //     byte[] cipher = HybridEncryption.hybridEncryption(MODE_ENC, createdBy.getBytes(), context);
-    //     String cipherCreatedBy = Base64.getEncoder().encodeToString(cipher);
-       
-    //     return MetaData.newBuilder()
-    //         .setCreated(created)
-    //         .setCreatedBy(cipherCreatedBy)
-    //         .setSubmittedBy(submittedBy)
-    //         .addAllResources(resources)
-    //         .addAllUpdates(updates)
-    //         .setPhenopacketSchemaVersion(schemaVersion)
-    //         .build(); 
-    // }
-
     public static MetaData protectedMetaDataCreator(MetaData metaData, byte[] context) throws IOException, GeneralSecurityException, URISyntaxException{
         String createdBy = metaData.getCreatedBy();
         metaData = MetaData.newBuilder(metaData).clearCreatedBy().build();
@@ -244,9 +219,8 @@ public class MainElements {
         return MetaData.newBuilder().setCreatedBy(cipherCreatedBy).build(); 
     }
     
-
      /**
-     * Function to create protected metadata element 
+     * Function to create protected MetaData element 
      * @param metaData required - MetaData element to protect
      * @param context required - context used in the encryption
      * @return encrypted byte[] representing the element
@@ -400,8 +374,9 @@ public class MainElements {
     }
 
     /**
-     * @param procedure
-     * @return
+     * Method to create Procedure medical action
+     * @param procedure required - Procedure element
+     * @return MedicalAction element
      */
     public static MedicalAction createProcedure (Procedure procedure){
         return MedicalAction.newBuilder()
@@ -410,17 +385,20 @@ public class MainElements {
     }
 
     /**
-     * @param treatment
-     * @return
+     * Method to create Treatment medical action
+     * @param procedure required - Treatment element
+     * @return MedicalAction element
      */
     public static MedicalAction createTreatment (Treatment treatment){
         return MedicalAction.newBuilder()
             .setTreatment(treatment)
             .build();
     }
+
     /**
-     * @param therapeuticRegimen
-     * @return
+     * Method to create Therapeutic Regimen medical action
+     * @param procedure required - Therapeutic Regimen element
+     * @return MedicalAction element
      */
     public static MedicalAction createTherapeuticRegimen(TherapeuticRegimen therapeuticRegimen){
         return MedicalAction.newBuilder()
@@ -429,8 +407,9 @@ public class MainElements {
     }
 
     /**
-     * @param radiationTherapy
-     * @return
+     * Method to create Radiation Therapy medical action
+     * @param procedure required - Radiation Therapy element
+     * @return MedicalAction element
      */
     public static MedicalAction createRadiationTherapy(RadiationTherapy radiationTherapy){
         return MedicalAction.newBuilder()

@@ -72,26 +72,25 @@ public class SecurePhenopacket {
             .build();
     }
     
-    public static Phenopacket createPhenopacketToHybrydEncryption(String id, Individual subject, MetaData metaData){
-
-        return Phenopacket.newBuilder()
-            .setId(id)
-            .setSubject(subject)
-            .setMetaData(metaData)
-            .build();
-    }
-
-
+    /**
+     * Method to retrieve and encrypt the MetaData element and store it with Phenopacket
+     * @param phenopacket required - Phenopacket element
+     * @throws URISyntaxException
+     * @throws IOException
+     * @throws GeneralSecurityException
+     * @throws ParseException
+     */
     public static void protectMetaData(Phenopacket phenopacket) throws URISyntaxException, IOException, GeneralSecurityException, ParseException{
         MetaData metaData = phenopacket.getMetaData();
         String phenopacketId = phenopacket.getId();
         
+        // Remove MetaData from Phenopacket
         phenopacket = Phenopacket.newBuilder(phenopacket).clearMetaData().build();
         System.out.println("Phenopacket is:" + phenopacket);
-
+        // Encrypt the element
         byte[] cipherMetadata = MainElements.protectedMetaData(metaData, phenopacketId.getBytes());
         byte[] phenopacketBytes = phenopacket.toByteArray();
-
+        // Save both in a JSON file
         HybridEncryption.saveInFile(cipherMetadata, "Metadata", phenopacketId);
         HybridEncryption.saveInFile(phenopacketBytes, "Phenopacket", phenopacketId);
         
@@ -137,7 +136,14 @@ public class SecurePhenopacket {
         DigitalSignature.protectWithDS("verify", phenopacketBytes, phenopacketId);
     }
 
-    public static byte[] getPhenopacketFromFile(String elementID) throws URISyntaxException, IOException{
+    /**
+     * Method to retrieve the Phenopacket element from File
+     * @param elementID required - Phenopacket ID
+     * @return new Phenopacket element
+     * @throws URISyntaxException
+     * @throws IOException
+     */
+    public static Phenopacket getPhenopacketFromFile(String elementID) throws URISyntaxException, IOException{
 
         byte[] phenopacketBytes = null;
 
@@ -166,20 +172,23 @@ public class SecurePhenopacket {
             e.printStackTrace();
         }
         
-        System.out.println(phenopacketBytes);
-        return phenopacketBytes;
+        Phenopacket phenopacket = Phenopacket.parseFrom(phenopacketBytes);
+        System.out.println(phenopacket);
+        return phenopacket;
     }
 
-    /*
+/**
      * Export Phenopacket to JSON
+     * @param phenopacket required - Phenopacket element
+     * @throws URISyntaxException
      */
     public static void exportPhenopacket(Phenopacket phenopacket) throws URISyntaxException{
        
         try{
             String jsonString = JsonFormat.printer().includingDefaultValueFields().print(phenopacket);
             System.out.println(jsonString);
-            String path = externalResource.getNewPath("P-"+phenopacket.getId(),".json" );
-            File phenopacketJson = new File(path);
+           
+            File phenopacketJson = externalResource.createNewFile("P-"+phenopacket.getId()+".json");
 
             BufferedWriter fileWriter = new BufferedWriter(new FileWriter(phenopacketJson));     
             fileWriter.write(jsonString);
@@ -190,11 +199,16 @@ public class SecurePhenopacket {
         }
     }
 
-    /*
+    /**
      * Import Phenopacket from JSON
+     * @param path required - path where Phenopacket is located
+     * @return new Phenopacket element
+     * @throws URISyntaxException
+     * @throws ParseException
+     * @throws IOException
      */
-    public static Phenopacket importPhenopacket(String path) throws URISyntaxException, ParseException, IOException{
-        File jsonFile = new File(path);
+    public static Phenopacket importPhenopacket(File jsonFile) throws URISyntaxException, ParseException, IOException{
+ 
         String js = Files.readString(jsonFile.toPath());
 
         Phenopacket phenopacket = null;
@@ -209,5 +223,4 @@ public class SecurePhenopacket {
         }
         return phenopacket;
     }
-    
 }

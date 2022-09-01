@@ -1,5 +1,6 @@
 package tfm.phenopacket_schema;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
@@ -150,8 +151,8 @@ public class SecurePhenopacketTest {
         ExternalResources externalResource = new ExternalResources();
         Phenopacket phenopacket = covidCase.covid19Phenopacket();
 
-        String path = externalResource.getNewPath("P-"+phenopacket.getId(), ".json");
-        Phenopacket phenopacketFromFile = SecurePhenopacket.importPhenopacket(path);
+        File file = externalResource.createNewFile("P-"+phenopacket.getId()+".json");
+        Phenopacket phenopacketFromFile = SecurePhenopacket.importPhenopacket(file);
         System.out.println(phenopacketFromFile);
 
         Assertions.assertNotEquals(phenopacket, phenopacketFromFile);

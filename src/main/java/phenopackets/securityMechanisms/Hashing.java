@@ -99,7 +99,7 @@ public class Hashing {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public static String  computeMedicalAction(MedicalAction medicalAction, String phenopacketId, String medicalActionName) throws IOException, URISyntaxException{
+    public static String  computeMedicalActionHash(MedicalAction medicalAction, String phenopacketId, String medicalActionName) throws IOException, URISyntaxException{
         // Input validation
         if (medicalAction == null){
             throw new NullPointerException();

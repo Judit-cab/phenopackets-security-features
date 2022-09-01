@@ -97,7 +97,7 @@ public class Oncology {
         tnmFindings.add(clinicalTnmFinding1);
         tnmFindings.add(clinicalTnmFinding2);
         TimeElement onset = BlockBuilder.createTimeElementAge(isoAge.getBytes(), phenopacketId.getBytes());
-        Disease disease = MainElements.createOncologicaldisease(term, false, diseaseStages, tnmFindings, primarySite, onset);
+        Disease disease = MainElements.createOncologicalDisease(term, false, diseaseStages, tnmFindings, primarySite, onset);
 
         diseases.add(disease);
         return diseases;
@@ -129,7 +129,5 @@ public class Oncology {
             .addAllDiseases(createOncologyDisease())
             .setMetaData(createOncologyMetaData())
             .build();
-    }
-
-    
+    } 
 }
